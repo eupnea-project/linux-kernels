@@ -1,3 +1,3 @@
 <p align="center">
-Configuration files and a build system for running mainline linux on chromebooks with depthcharged. Currently only used on breath.
+Build system for mainline linux on chromebooks with depthcharge.
 </p>

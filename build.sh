@@ -10,7 +10,7 @@ sudo apt install -y netpbm imagemagick git build-essential ncurses-dev xz-utils 
 set -e
 
 # Clone mainline
-KERNEL_VERSION=v6.0-rc3
+KERNEL_VERSION=v6.0-rc4
 if [[ ! -d $KERNEL_VERSION ]]; then
 	git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git $KERNEL_VERSION
 fi

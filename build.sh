@@ -75,17 +75,6 @@ fi
 cp arch/x86/boot/bzImage ../$VMLINUZ
 echo "bzImage and modules built"
 
-# Sign the kernel
-futility --debug vbutil_kernel \
-    --arch x86_64 --version 1 \
-    --keyblock /usr/share/vboot/devkeys/kernel.keyblock \
-    --signprivate /usr/share/vboot/devkeys/kernel_data_key.vbprivk \
-    --bootloader ../kernel.flags \
-    --config ../kernel.flags \
-    --vmlinuz ../$VMLINUZ \
-    --pack ../${VMLINUZ}.signed
-echo "Signed bzImage created\!" # Shell expansion weirdness
-
 rm -rf mod || true
 mkdir mod
 make -j$(nproc) modules_install INSTALL_MOD_PATH=mod

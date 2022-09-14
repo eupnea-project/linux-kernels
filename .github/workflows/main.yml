@@ -65,6 +65,5 @@ jobs:
             Kernel Delivery System - Triggered by ${{ github.sha }} at ${{ github.event.repository.updated_at }}
           files: |
             bzImage
-            bzImage.signed
             modules.tar.xz
             headers.tar.xz

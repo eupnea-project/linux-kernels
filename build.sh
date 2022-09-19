@@ -77,7 +77,7 @@ echo "bzImage and modules built"
 
 rm -rf mod || true
 mkdir mod
-make -j$(nproc) modules_install INSTALL_MOD_PATH=mod
+make -j$(nproc) modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
 make -j$(nproc) headers_install INSTALL_HDR_PATH=hdr
 
 # Creates an archive containing /lib/modules/...

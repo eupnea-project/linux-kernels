@@ -1,1 +1,1 @@
-Reduce module size.
+Enabled firmware compression support.

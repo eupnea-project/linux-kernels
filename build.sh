@@ -11,9 +11,17 @@ set -e
 
 # Kernel Version
 case $1 in
-	stable) KERNEL_VERSION=v5.19.10;;
-	testing) KERNEL_VERSION=v6.0-rc4;;
-	*) echo "./build.sh [stable|testing]"; exit 1
+	stable)
+		KERNEL_VERSION=v5.19.10
+		;;
+	testing)
+		KERNEL_VERSION=v6.0-rc4
+		;;
+	*)
+		echo "./build.sh [stable|testing]" 
+		exit 1
+		;;
+esac
 
 # Clone mainline
 if [[ ! -d $KERNEL_VERSION ]]; then
@@ -117,4 +125,3 @@ cd ..
 cp .config ../$CONFIG
 
 cd ..
-

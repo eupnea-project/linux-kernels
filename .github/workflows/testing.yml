@@ -27,13 +27,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Building the stable Kernel
+      - name: Building the testing Kernel
         run: ./build.sh testing
 
       - name: Uploading as artifact
         uses: actions/upload-artifact@v2
         with:
-          name: stable-kernel
+          name: testing-kernel
           retention-days: 1
           path: |
             bzImage-testing

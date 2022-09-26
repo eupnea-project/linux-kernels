@@ -1,1 +1,1 @@
-Enabled firmware compression support.
+Build multiple kernel versions.

@@ -9,8 +9,13 @@ sudo apt install -y netpbm imagemagick git build-essential ncurses-dev xz-utils 
 # Exit on errors
 set -e
 
+# Kernel Version
+case $1 in
+	stable) KERNEL_VERSION=v5.19.10;;
+	testing) KERNEL_VERSION=v6.0-rc4;;
+	*) echo "./build.sh [stable|testing]"; exit 1
+
 # Clone mainline
-KERNEL_VERSION=v6.0-rc4
 if [[ ! -d $KERNEL_VERSION ]]; then
 	git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git $KERNEL_VERSION
 fi
@@ -30,10 +35,18 @@ cd $KERNEL_VERSION
 echo "mod" >> .gitignore
 touch .scmversion
 
-MODULES="modules.tar.xz"
-HEADERS="headers.tar.xz"
-VMLINUZ="bzImage"
-SYSTEM_MAP="System.map-breath"
+if [$1 == "stable"]; then
+	MODULES="modules-stable.tar.xz"
+	HEADERS="headers-stable.tar.xz"
+	VMLINUZ="bzImage-stable"
+fi
+
+if [$1 == "testing"]; then
+        MODULES="modules-testing.tar.xz"
+        HEADERS="headers-testing.tar.xz"
+        VMLINUZ="bzImage-testing"
+fi
+
 [[ -f .config ]] || cp ../.config .config || exit
 
 make olddefconfig
@@ -99,9 +112,8 @@ chmod +x fastxz
 tar -cvI './fastxz' -f ../../$HEADERS include/
 echo "headers.tar.xz created!"
 
-# Copy the vmlinuz, system.map, and kernel config to the kernel directory
+# Copy the vmlinuz, and kernel config to the kernel directory
 cd ..
-cp System.map ../$SYSTEM_MAP
 cp .config ../$CONFIG
 
 cd ..

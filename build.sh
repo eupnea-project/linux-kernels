@@ -43,17 +43,19 @@ cd $KERNEL_VERSION
 echo "mod" >> .gitignore
 touch .scmversion
 
-if [$1 == "stable"]; then
-	MODULES="modules-stable.tar.xz"
-	HEADERS="headers-stable.tar.xz"
-	VMLINUZ="bzImage-stable"
-fi
-
-if [$1 == "testing"]; then
-        MODULES="modules-testing.tar.xz"
-        HEADERS="headers-testing.tar.xz"
-        VMLINUZ="bzImage-testing"
-fi
+# File naming
+case $1 in
+	stable)
+		MODULES="modules-stable.tar.xz"
+		HEADERS="headers-stable.tar.xz"
+		VMLINUZ="bzImage-stable"
+		;;
+	testing)
+		MODULES="modules-testing.tar.xz"
+ 	        HEADERS="headers-testing.tar.xz"
+        	VMLINUZ="bzImage-testing"
+		;;
+esac
 
 [[ -f .config ]] || cp ../.config .config || exit
 

@@ -15,7 +15,7 @@ case $1 in
 		KERNEL_VERSION=v5.19
 		;;
 	testing)
-		KERNEL_VERSION=v6.0-rc7
+		KERNEL_VERSION=v6.0
 		;;
 	*)
 		echo "./build.sh [stable|testing]" 

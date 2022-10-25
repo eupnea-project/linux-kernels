@@ -109,7 +109,7 @@ tar -cvI './fastxz' -f ../../$MODULES *
 echo "modules.tar.xz created!"
 
 # Compress headers
-cd ..
+cd ../../..
 cd hdr
 
 echo "xz -9 -T0" >fastxz

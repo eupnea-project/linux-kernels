@@ -99,7 +99,9 @@ make -j$(nproc) modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
 make -j$(nproc) headers_install INSTALL_HDR_PATH=hdr
 
 # Creates an archive containing /lib/modules/...
-cd mod/lib/modules
+cd mod
+mv lib/modules/* .
+rm -r lib
 # Speedy multicore compression
 # Some version of tar don't support arguments after the command in the -I option,
 # so we're putting the arguments and the command in a script
@@ -109,7 +111,7 @@ tar -cvI './fastxz' -f ../../$MODULES *
 echo "modules.tar.xz created!"
 
 # Compress headers
-cd ../../..
+cd ../
 cd hdr
 
 echo "xz -9 -T0" >fastxz

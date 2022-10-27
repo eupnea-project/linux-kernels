@@ -13,7 +13,7 @@ testing)
   ;;
 *)
   echo "./build.sh [stable|testing]"
-  exit 1
+  exit 0
   ;;
 esac
 
@@ -64,16 +64,6 @@ if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
     make menuconfig
   fi
 
-  read -p "Would you like to write the new config to github? (y/n) " -n 1 -r
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if [[ $KERNEL_VERSION == "alt-chromeos-5.10" ]]; then
-      cp .config ../../kernel.alt.conf
-    else
-      cp .config ../../kernel.conf
-    fi
-  fi
-
   echo "Building kernel"
   read -p "Would you like a full rebuild? (y/n) " -n 1 -r
   echo
@@ -90,37 +80,89 @@ else
 
 fi
 
-cp arch/x86/boot/bzImage ../$VMLINUZ
+cp arch/x86/boot/bzImage ./vmlinux
+cp vmlinux ../$VMLINUZ
 echo "bzImage and modules built"
 
 rm -rf mod || true
 mkdir mod
 make -j$(nproc) modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
-make -j$(nproc) headers_install INSTALL_HDR_PATH=hdr
 
-# Creates an archive containing /lib/modules/...
+# Move files around
 cd mod
 mv lib/modules/* .
 rm -r lib
-# Speedy multicore compression
-# Some version of tar don't support arguments after the command in the -I option,
-# so we're putting the arguments and the command in a script
-echo "xz -9 -T0" >fastxz
-chmod +x fastxz
-tar -cvI './fastxz' -f ../../$MODULES *
-echo "modules.tar.xz created!"
 
-# Compress headers
+# Remove broken symlinks
+rm -rf */build
+
+# Create an archive for the modules
+tar -cvI "xz -9 -T0" -f ../$MODULES *
+echo "$MODULES created!"
+
+# Creates an archive containing headers to build out of tree modules
+# Taken from the archlinux linux PKGBUILD
 cd ../
-cd hdr
+mkdir hdr
+HDR_PATH=$(pwd)/hdr
 
-echo "xz -9 -T0" >fastxz
-chmod +x fastxz
-tar -cvI './fastxz' -f ../../$HEADERS include/
-echo "headers.tar.xz created!"
+# Build files
+install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map localversion.* version vmlinux
+install -Dt "$HDR_PATH/kernel" -m644 kernel/Makefile
+install -Dt "$HDR_PATH/arch/x86" -m644 arch/x86/Makefile
+cp -t "$HDR_PATH" -a scripts
+# Fixes errors when building
+install -Dt "$HDR_PATH/tools/objtool" tools/objtool/objtool
+install -Dt "$HDR_PATH/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
 
-# Copy the vmlinuz, and kernel config to the kernel directory
-cd ..
-cp .config ../$CONFIG
+# Install header files
+cp -t "$HDR_PATH" -a include
+cp -t "$HDR_PATH/arch/x86" -a arch/x86/include
+install -Dt "$HDR_PATH/arch/x86/kernel" -m644 arch/x86/kernel/asm-offsets.s
+install -Dt "$HDR_PATH/drivers/md" -m644 drivers/md/*.h
+install -Dt "$HDR_PATH/net/mac80211" -m644 net/mac80211/*.h
+install -Dt "$HDR_PATH/drivers/media/i2c" -m644 drivers/media/i2c/msp3400-driver.h
+install -Dt "$HDR_PATH/drivers/media/usb/dvb-usb" -m644 drivers/media/usb/dvb-usb/*.h
+install -Dt "$HDR_PATH/drivers/media/dvb-frontends" -m644 drivers/media/dvb-frontends/*.h
+install -Dt "$HDR_PATH/drivers/media/tuners" -m644 drivers/media/tuners/*.h
+install -Dt "$HDR_PATH/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/hid-sensors/*.h
 
-cd ..
+# Install kconfig files
+find . -name 'Kconfig*' -exec install -Dm644 {} "$HDR_PATH/{}" \;
+
+# Remove uneeded architectures
+local arch
+for arch in "$builddir"/arch/*/; do
+  [[ $arch = */x86/ ]] && continue
+  echo "Removing $(basename "$arch")"
+  rm -r "$arch"
+done
+
+# Remove docs
+rm -r "$HDR_PATH/Documentation"
+
+# Remove broken symlinks
+find -L "$HDR_PATH" -type l -printf 'Removing %P\n' -delete
+
+# Strip libraries and binaries
+local file
+while read -rd '' file; do
+  case "$(file -bi "$file")" in
+    application/x-sharedlib\;*)      # Libraries (.so)
+      strip -v $STRIP_SHARED "$file" ;;
+    application/x-archive\;*)        # Libraries (.a)
+      strip -v $STRIP_STATIC "$file" ;;
+    application/x-executable\;*)     # Binaries
+      strip -v $STRIP_BINARIES "$file" ;;
+    application/x-pie-executable\;*) # Relocatable binaries
+      strip -v $STRIP_SHARED "$file" ;;
+  esac
+done < <(find "$HDR_PATH" -type f -perm -u+x ! -name vmlinux -print0)
+
+# Strip vmlinux
+strip -v $STRIP_STATIC "$HDR_PATH/vmlinux"
+
+# Create an archive for the headers
+cd $HDR_PATH
+tar -cvI "xz -9 -T0" -f ../$HEADERS *
+echo "$HEADERS created!"

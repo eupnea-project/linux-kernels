@@ -95,25 +95,27 @@ rm -r lib
 
 # Remove broken symlinks
 rm -rf */build
+rm -rf */source
 
 # Create an archive for the modules
-tar -cvI "xz -9 -T0" -f ../$MODULES *
+tar -cvI "xz -9 -T0" -f ../../$MODULES *
 echo "$MODULES created!"
 
 # Creates an archive containing headers to build out of tree modules
 # Taken from the archlinux linux PKGBUILD
 cd ../
+rm -r hdr
 mkdir hdr
 HDR_PATH=$(pwd)/hdr
 
 # Build files
-install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map localversion.* version vmlinux
+install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map vmlinux
 install -Dt "$HDR_PATH/kernel" -m644 kernel/Makefile
 install -Dt "$HDR_PATH/arch/x86" -m644 arch/x86/Makefile
 cp -t "$HDR_PATH" -a scripts
 # Fixes errors when building
 install -Dt "$HDR_PATH/tools/objtool" tools/objtool/objtool
-install -Dt "$HDR_PATH/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids
+# install -Dt "$HDR_PATH/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids # Disabled in kconfig
 
 # Install header files
 cp -t "$HDR_PATH" -a include
@@ -131,10 +133,8 @@ install -Dt "$HDR_PATH/drivers/iio/common/hid-sensors" -m644 drivers/iio/common/
 find . -name 'Kconfig*' -exec install -Dm644 {} "$HDR_PATH/{}" \;
 
 # Remove uneeded architectures
-local arch
-for arch in "$builddir"/arch/*/; do
+for arch in "$HDR_PATH"/arch/*/; do
   [[ $arch = */x86/ ]] && continue
-  echo "Removing $(basename "$arch")"
   rm -r "$arch"
 done
 
@@ -145,7 +145,6 @@ rm -r "$HDR_PATH/Documentation"
 find -L "$HDR_PATH" -type l -printf 'Removing %P\n' -delete
 
 # Strip libraries and binaries
-local file
 while read -rd '' file; do
   case "$(file -bi "$file")" in
     application/x-sharedlib\;*)      # Libraries (.so)
@@ -164,5 +163,5 @@ strip -v $STRIP_STATIC "$HDR_PATH/vmlinux"
 
 # Create an archive for the headers
 cd $HDR_PATH
-tar -cvI "xz -9 -T0" -f ../$HEADERS *
+tar -cvI "xz -9 -T0" -f ../../$HEADERS *
 echo "$HEADERS created!"

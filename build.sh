@@ -104,7 +104,7 @@ echo "$MODULES created!"
 # Creates an archive containing headers to build out of tree modules
 # Taken from the archlinux linux PKGBUILD
 cd ../
-rm -r hdr
+rm -r hdr || true
 mkdir hdr
 HDR_PATH=$(pwd)/hdr
 

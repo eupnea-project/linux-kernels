@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 1
 
       - name: Installing dependencies
-        run: sudo apt update && sudo apt install netpbm imagemagick git build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison binutils kernel-package
+        run: sudo apt update && sudo apt install netpbm imagemagick git build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison binutils
 
       - name: Building the stable Kernel
         run: ./build.sh stable

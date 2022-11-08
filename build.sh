@@ -6,10 +6,10 @@ set -e
 # Kernel Version
 case $1 in
 stable)
-  KERNEL_VERSION=v6.0
+  KERNEL_VERSION=v6.0.7
   ;;
 testing)
-  KERNEL_VERSION=v6.1-rc1
+  KERNEL_VERSION=v6.1-rc4
   ;;
 *)
   echo "./build.sh [stable|testing]"
@@ -17,9 +17,19 @@ testing)
   ;;
 esac
 
+# Stable uses a different repo than mainline
+case $1 in
+stable)
+  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  ;;
+testing)
+  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+  ;;
+esac
+
 # Clone mainline
 if [[ ! -d $KERNEL_VERSION ]]; then
-  git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git $KERNEL_VERSION
+  git clone --depth 1 --branch $KERNEL_VERSION --single-branch $KERNEL_URL $KERNEL_VERSION
 fi
 
 (

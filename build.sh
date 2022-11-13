@@ -53,15 +53,17 @@ stable)
   MODULES="modules-stable.tar.xz"
   HEADERS="headers-stable.tar.xz"
   VMLINUZ="bzImage-stable"
+  CONFIG="config-stable"
   ;;
 testing)
   MODULES="modules-testing.tar.xz"
   HEADERS="headers-testing.tar.xz"
   VMLINUZ="bzImage-testing"
+  CONFIG="config-testing"
   ;;
 esac
 
-[[ -f .config ]] || cp ../.config .config || exit
+[[ -f .config ]] || cp ../$CONFIG .config || exit
 
 make olddefconfig
 

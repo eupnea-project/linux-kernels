@@ -35,7 +35,7 @@ fi
 (
   # Bootlogo not working for now
   echo "Setting up the bootlogo"
-  cp ../logo/depthboot_boot_logo.ppm drivers/video/logo/logo_linux_clut224.ppm
+  cp logo/depthboot_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
 )
 
 cd $KERNEL_VERSION

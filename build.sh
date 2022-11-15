@@ -35,10 +35,7 @@ fi
 (
   # Bootlogo not working for now
   echo "Setting up the bootlogo"
-  cd logo
-  mogrify -format ppm "logo.png"
-  ppmquant 224 logo.ppm >logo_224.ppm
-  pnmnoraw logo_224.ppm >logo_final.ppm
+  cp ../logo/depthboot_boot_logo.ppm drivers/video/logo/logo_linux_clut224.ppm
 )
 
 cd $KERNEL_VERSION

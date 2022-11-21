@@ -40,6 +40,9 @@ fi
 
 cd $KERNEL_VERSION
 
+# Apply patch to fix speakers on kbl avs
+patch -p1 < ../kbl-avs.patch
+
 # Prevents a dirty kernel
 echo "mod" >>.gitignore
 touch .scmversion

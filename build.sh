@@ -6,10 +6,10 @@ set -e
 # Kernel Version
 case $1 in
 stable)
-  KERNEL_VERSION=v6.0.9
+  KERNEL_VERSION=v6.1.1
   ;;
 testing)
-  KERNEL_VERSION=v6.1-rc5
+  KERNEL_VERSION=v6.1
   ;;
 *)
   echo "./build.sh [stable|testing]"

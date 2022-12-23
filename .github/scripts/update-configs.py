@@ -12,7 +12,7 @@ def bash(command: str) -> str:
 
 def update_stable(releases_json: dict) -> None:
     # Get the latest stable version
-    latest_stable = "v" + releases_json["releases"][1]["version"]
+    latest_stable = "v" + releases_json["latest_stable"]["version"]
 
     # Git clone the latest stable version
     bash(f"git clone --depth=1 --branch={latest_stable} https://git.kernel.org/pub/scm/linux/kernel/git/"
@@ -30,7 +30,7 @@ def update_stable(releases_json: dict) -> None:
 
 def update_testing(releases_json: dict) -> None:
     # Get the latest mainline version
-    latest_stable = "v" + releases_json["latest_stable"]["version"]
+    latest_stable = "v" + releases_json["releases"][0]["version"]
 
     # Git clone the latest mainline version
     bash(f"git clone --depth=1 --branch={latest_stable} https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/"

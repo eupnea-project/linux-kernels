@@ -41,7 +41,9 @@ fi
 cd $KERNEL_VERSION
 
 # Apply patch to fix speakers on kbl avs
-patch -p1 < ../kbl-avs.patch
+if [ $1 == stable ]; then # This has been merged into mainline since v6.2
+	patch -p1 < ../kbl-avs.patch
+fi
 
 # Prevents a dirty kernel
 echo "mod" >>.gitignore

@@ -6,7 +6,7 @@ set -e
 # Kernel Version
 case $1 in
 stable)
-  KERNEL_VERSION=v6.0.15
+  KERNEL_VERSION=v6.1.2
   ;;
 testing)
   KERNEL_VERSION=v6.2-rc1

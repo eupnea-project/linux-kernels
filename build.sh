@@ -119,8 +119,8 @@ echo "$MODULES created!"
 # Taken from the archlinux linux PKGBUILD
 cd ../
 rm -r hdr || true
-mkdir hdr
-HDR_PATH=$(pwd)/hdr
+mkdir -p hdr
+HDR_PATH=$(pwd)/hdr/$KERNEL_VERSION
 
 # Build files
 install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map vmlinux
@@ -176,6 +176,6 @@ done < <(find "$HDR_PATH" -type f -perm -u+x ! -name vmlinux -print0)
 strip -v $STRIP_STATIC "$HDR_PATH/vmlinux"
 
 # Create an archive for the headers
-cd $HDR_PATH
+cd $HDR_PATH/..
 tar -cvI "xz -9 -T0" -f ../../$HEADERS *
 echo "$HEADERS created!"

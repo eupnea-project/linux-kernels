@@ -120,7 +120,8 @@ echo "$MODULES created!"
 cd ../
 rm -r hdr || true
 mkdir -p hdr
-HDR_PATH=$(pwd)/hdr/$KERNEL_VERSION
+KVER=$(file -bL bzImage | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
+HDR_PATH=$(pwd)/hdr/linux-headers-$KVER
 
 # Build files
 install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map vmlinux

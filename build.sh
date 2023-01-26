@@ -3,27 +3,27 @@
 # Exit on errors
 set -e
 
-# Kernel Version
+# Set variables based on kernel type to build
 case $1 in
 stable)
   KERNEL_VERSION=v6.1.2
+  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  MODULES="modules-stable.tar.xz"
+  HEADERS="headers-stable.tar.xz"
+  VMLINUZ="bzImage-stable"
+  CONFIG="config-stable"
   ;;
 testing)
   KERNEL_VERSION=v6.2-rc1
+  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+  MODULES="modules-testing.tar.xz"
+  HEADERS="headers-testing.tar.xz"
+  VMLINUZ="bzImage-testing"
+  CONFIG="config-testing"
   ;;
 *)
   echo "./build.sh [stable|testing]"
   exit 0
-  ;;
-esac
-
-# Stable uses a different repo than mainline
-case $1 in
-stable)
-  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  ;;
-testing)
-  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
   ;;
 esac
 
@@ -32,11 +32,8 @@ if [[ ! -d $KERNEL_VERSION ]]; then
   git clone --depth 1 --branch $KERNEL_VERSION --single-branch $KERNEL_URL $KERNEL_VERSION
 fi
 
-(
-  # Bootlogo not working for now
-  echo "Setting up the bootlogo"
-  cp logo/depthboot_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
-)
+echo "Setting up the bootlogo"
+cp logo/depthboot_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
 
 cd $KERNEL_VERSION
 
@@ -49,22 +46,7 @@ fi
 echo "mod" >>.gitignore
 touch .scmversion
 
-# File naming
-case $1 in
-stable)
-  MODULES="modules-stable.tar.xz"
-  HEADERS="headers-stable.tar.xz"
-  VMLINUZ="bzImage-stable"
-  CONFIG="config-stable"
-  ;;
-testing)
-  MODULES="modules-testing.tar.xz"
-  HEADERS="headers-testing.tar.xz"
-  VMLINUZ="bzImage-testing"
-  CONFIG="config-testing"
-  ;;
-esac
-
+# Copy config if it doesn't exist
 [[ -f .config ]] || cp ../$CONFIG .config || exit
 
 make olddefconfig
@@ -98,11 +80,12 @@ cp arch/x86/boot/bzImage ./vmlinux
 cp vmlinux ../$VMLINUZ
 echo "bzImage and modules built"
 
+# Install modules
 rm -rf mod || true
 mkdir mod
 make -j$(nproc) modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
 
-# Move files around
+# Move modules folder to root of mod
 cd mod
 mv lib/modules/* .
 rm -r lib
@@ -115,7 +98,7 @@ rm -rf */source
 tar -cvI "xz -9 -T0" -f ../../$MODULES *
 echo "$MODULES created!"
 
-# Creates an archive containing headers to build out of tree modules
+# Create an archive containing headers to build out of tree modules
 # Taken from the archlinux linux PKGBUILD
 cd ../
 rm -r hdr || true
@@ -158,22 +141,13 @@ rm -r "$HDR_PATH/Documentation"
 # Remove broken symlinks
 find -L "$HDR_PATH" -type l -printf 'Removing %P\n' -delete
 
-# Strip libraries and binaries
-while read -rd '' file; do
-  case "$(file -bi "$file")" in
-    application/x-sharedlib\;*)      # Libraries (.so)
-      strip -v $STRIP_SHARED "$file" ;;
-    application/x-archive\;*)        # Libraries (.a)
-      strip -v $STRIP_STATIC "$file" ;;
-    application/x-executable\;*)     # Binaries
-      strip -v $STRIP_BINARIES "$file" ;;
-    application/x-pie-executable\;*) # Relocatable binaries
-      strip -v $STRIP_SHARED "$file" ;;
-  esac
-done < <(find "$HDR_PATH" -type f -perm -u+x ! -name vmlinux -print0)
+# Strip files
+for file in $(find $HDR_PATH) do
+	strip $file
+done
 
 # Strip vmlinux
-strip -v $STRIP_STATIC "$HDR_PATH/vmlinux"
+strip "$HDR_PATH/vmlinux"
 
 # Create an archive for the headers
 cd $HDR_PATH

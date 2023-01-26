@@ -3,29 +3,36 @@
 # Exit on errors
 set -e
 
-# Set variables based on kernel type to build
-case $1 in
-stable)
-  KERNEL_VERSION=v6.1.2
-  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  MODULES="modules-stable.tar.xz"
-  HEADERS="headers-stable.tar.xz"
-  VMLINUZ="bzImage-stable"
-  CONFIG="config-stable"
-  ;;
-testing)
-  KERNEL_VERSION=v6.2-rc1
-  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-  MODULES="modules-testing.tar.xz"
-  HEADERS="headers-testing.tar.xz"
-  VMLINUZ="bzImage-testing"
-  CONFIG="config-testing"
-  ;;
-*)
-  echo "./build.sh [stable|testing]"
-  exit 0
-  ;;
-esac
+## Set variables based on kernel type to build
+#case $1 in
+#stable)
+#  KERNEL_VERSION=v6.1.2
+#  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+#  MODULES="modules-stable.tar.xz"
+#  HEADERS="headers-stable.tar.xz"
+#  VMLINUZ="bzImage-stable"
+#  CONFIG="config-stable"
+#  ;;
+#testing)
+#  KERNEL_VERSION=v6.2-rc1
+#  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+#  MODULES="modules-testing.tar.xz"
+#  HEADERS="headers-testing.tar.xz"
+#  VMLINUZ="bzImage-testing"
+#  CONFIG="config-testing"
+#  ;;
+#*)
+#  echo "./build.sh [stable|testing]"
+#  exit 0
+#  ;;
+#esac
+
+KERNEL_VERSION=v6.1.2
+KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+MODULES="modules-stable.tar.xz"
+HEADERS="headers-stable.tar.xz"
+VMLINUZ="bzImage-stable"
+CONFIG="kernel.conf"
 
 # Clone mainline
 if [[ ! -d $KERNEL_VERSION ]]; then

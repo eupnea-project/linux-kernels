@@ -31,7 +31,7 @@ if __name__ == "__main__":
     # Update bash script
     with open("build.sh", "r") as file:
         build_script = file.readlines()
-    build_script[1] = f"  KERNEL_VERSION={latest_version}"
+    build_script[29] = f"KERNEL_VERSION={latest_version}"
     with open("build.sh", "w") as file:
         file.writelines(build_script)
 

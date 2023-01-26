@@ -29,7 +29,7 @@ jobs:
         run: sudo apt update && sudo apt install git build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison binutils
 
       - name: Building Kernel
-        run: sudo ./build.sh
+        run: bash build.sh
 
       - name: Uploading as artifact
         uses: actions/upload-artifact@v2

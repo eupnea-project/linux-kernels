@@ -3,69 +3,28 @@
 # Exit on errors
 set -e
 
-# Kernel Version
-case $1 in
-stable)
-  KERNEL_VERSION=v6.1.2
-  ;;
-testing)
-  KERNEL_VERSION=v6.2-rc1
-  ;;
-*)
-  echo "./build.sh [stable|testing]"
-  exit 0
-  ;;
-esac
-
-# Stable uses a different repo than mainline
-case $1 in
-stable)
-  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  ;;
-testing)
-  KERNEL_URL=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-  ;;
-esac
+KERNEL_VERSION=v6.1.2
 
 # Clone mainline
 if [[ ! -d $KERNEL_VERSION ]]; then
-  git clone --depth 1 --branch $KERNEL_VERSION --single-branch $KERNEL_URL $KERNEL_VERSION
+  git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git $KERNEL_VERSION
 fi
 
-(
-  # Bootlogo not working for now
-  echo "Setting up the bootlogo"
-  cp logo/depthboot_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
-)
+echo "Setting up the bootlogo"
+cp logo/depthboot_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
 
 cd $KERNEL_VERSION
 
 # Apply patch to fix speakers on kbl avs
-if [ $1 == stable ]; then # This has been merged into mainline since v6.2
-	patch -p1 < ../kbl-avs.patch
-fi
+# This has been merged into mainline since v6.2
+patch -p1 <../kbl-avs.patch
 
-# Prevents a dirty kernel
+# Prevent a dirty kernel
 echo "mod" >>.gitignore
 touch .scmversion
 
-# File naming
-case $1 in
-stable)
-  MODULES="modules-stable.tar.xz"
-  HEADERS="headers-stable.tar.xz"
-  VMLINUZ="bzImage-stable"
-  CONFIG="config-stable"
-  ;;
-testing)
-  MODULES="modules-testing.tar.xz"
-  HEADERS="headers-testing.tar.xz"
-  VMLINUZ="bzImage-testing"
-  CONFIG="config-testing"
-  ;;
-esac
-
-[[ -f .config ]] || cp ../$CONFIG .config || exit
+# Copy config if it doesn't exist
+[[ -f .config ]] || cp ../kernel.conf .config || exit
 
 make olddefconfig
 
@@ -83,26 +42,26 @@ if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
   echo
   if [[ $REPLY =~ ^[Yy]$ ]]; then
     make clean
-    make -j$(nproc) || exit
+    make -j"$(nproc)" || exit
   else
-    make -j$(nproc) || exit
+    make -j"$(nproc)" || exit
   fi
 
 else
 
-  make -j$(nproc)
+  make -j"$(nproc)"
 
 fi
 
-cp arch/x86/boot/bzImage ./vmlinux
-cp vmlinux ../$VMLINUZ
-echo "bzImage and modules built"
+cp arch/x86/boot/bzImage ../bzImage
+echo "Kernel build completed"
 
+# Install modules
 rm -rf mod || true
 mkdir mod
-make -j$(nproc) modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
+make -j"$(nproc)" modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
 
-# Move files around
+# Move modules folder to root of mod
 cd mod
 mv lib/modules/* .
 rm -r lib
@@ -112,10 +71,10 @@ rm -rf */build
 rm -rf */source
 
 # Create an archive for the modules
-tar -cvI "xz -9 -T0" -f ../../$MODULES *
-echo "$MODULES created!"
+tar -cvI "xz -9 -T0" -f ../../modules.tar.xz *
+echo "Modules archive created!"
 
-# Creates an archive containing headers to build out of tree modules
+# Create an archive containing headers to build out of tree modules
 # Taken from the archlinux linux PKGBUILD
 cd ../
 rm -r hdr || true
@@ -124,7 +83,7 @@ KVER=$(file -bL ../$VMLINUZ | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
 HDR_PATH=$(pwd)/hdr/linux-headers-$KVER
 
 # Build files
-install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map vmlinux
+install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map # vmlinux
 install -Dt "$HDR_PATH/kernel" -m644 kernel/Makefile
 install -Dt "$HDR_PATH/arch/x86" -m644 arch/x86/Makefile
 cp -t "$HDR_PATH" -a scripts
@@ -159,24 +118,15 @@ rm -r "$HDR_PATH/Documentation"
 # Remove broken symlinks
 find -L "$HDR_PATH" -type l -printf 'Removing %P\n' -delete
 
-# Strip libraries and binaries
-while read -rd '' file; do
-  case "$(file -bi "$file")" in
-    application/x-sharedlib\;*)      # Libraries (.so)
-      strip -v $STRIP_SHARED "$file" ;;
-    application/x-archive\;*)        # Libraries (.a)
-      strip -v $STRIP_STATIC "$file" ;;
-    application/x-executable\;*)     # Binaries
-      strip -v $STRIP_BINARIES "$file" ;;
-    application/x-pie-executable\;*) # Relocatable binaries
-      strip -v $STRIP_SHARED "$file" ;;
-  esac
-done < <(find "$HDR_PATH" -type f -perm -u+x ! -name vmlinux -print0)
+# Strip files
+find "$HDR_PATH" -type f -exec strip {} \;
 
 # Strip vmlinux
-strip -v $STRIP_STATIC "$HDR_PATH/vmlinux"
+# strip "$HDR_PATH/vmlinux"
 
 # Create an archive for the headers
-cd $HDR_PATH/..
-tar -cvI "xz -9 -T0" -f ../../$HEADERS *
-echo "$HEADERS created!"
+cd "$HDR_PATH"/..
+tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
+echo "Headers archive created!"
+
+echo "Full build completed"

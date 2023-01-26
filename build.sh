@@ -53,8 +53,7 @@ else
 
 fi
 
-cp arch/x86/boot/bzImage ./vmlinux
-cp vmlinux ../bzImage
+cp arch/x86/boot/bzImage ../bzImage
 echo "Kernel build completed"
 
 # Install modules
@@ -83,7 +82,7 @@ mkdir hdr
 HDR_PATH=$(pwd)/hdr
 
 # Build files
-install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map vmlinux
+install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map # vmlinux
 install -Dt "$HDR_PATH/kernel" -m644 kernel/Makefile
 install -Dt "$HDR_PATH/arch/x86" -m644 arch/x86/Makefile
 cp -t "$HDR_PATH" -a scripts
@@ -119,10 +118,10 @@ rm -r "$HDR_PATH/Documentation"
 find -L "$HDR_PATH" -type l -printf 'Removing %P\n' -delete
 
 # Strip files
-find "$HDR_PATH" -type f -exec strip {} +
+find "$HDR_PATH" -type f -exec strip {} \;
 
 # Strip vmlinux
-strip "$HDR_PATH/vmlinux"
+# strip "$HDR_PATH/vmlinux"
 
 # Create an archive for the headers
 cd "$HDR_PATH"

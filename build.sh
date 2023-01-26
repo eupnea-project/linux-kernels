@@ -78,8 +78,9 @@ echo "Modules archive created!"
 # Taken from the archlinux linux PKGBUILD
 cd ../
 rm -r hdr || true
-mkdir hdr
-HDR_PATH=$(pwd)/hdr
+mkdir -p hdr
+KVER=$(file -bL ../$VMLINUZ | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
+HDR_PATH=$(pwd)/hdr/linux-headers-$KVER
 
 # Build files
 install -Dt "$HDR_PATH" -m644 .config Makefile Module.symvers System.map # vmlinux
@@ -124,7 +125,7 @@ find "$HDR_PATH" -type f -exec strip {} \;
 # strip "$HDR_PATH/vmlinux"
 
 # Create an archive for the headers
-cd "$HDR_PATH"
+cd "$HDR_PATH"/..
 tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
 

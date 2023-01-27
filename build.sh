@@ -4,8 +4,7 @@
 set -e
 
 KERNEL_VERSION=v6.1.2
-
-# Clone mainline
+KERNEL_VERSION=v6.1.8# Clone mainline
 if [[ ! -d $KERNEL_VERSION ]]; then
   git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git $KERNEL_VERSION
 fi

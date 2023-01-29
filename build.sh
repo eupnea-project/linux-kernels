@@ -79,7 +79,7 @@ echo "Modules archive created!"
 cd ../
 rm -r hdr || true
 mkdir -p hdr
-KVER=$(file -bL ../$VMLINUZ | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
+KVER=$(file -bL ../bzImage | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
 HDR_PATH=$(pwd)/hdr/linux-headers-$KVER
 
 # Build files

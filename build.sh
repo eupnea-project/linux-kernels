@@ -112,9 +112,6 @@ for arch in "$HDR_PATH"/arch/*/; do
   rm -r "$arch"
 done
 
-# Remove docs
-rm -r "$HDR_PATH/Documentation"
-
 # Remove broken symlinks
 find -L "$HDR_PATH" -type l -printf 'Removing %P\n' -delete
 
@@ -123,6 +120,9 @@ find "$HDR_PATH" -type f -exec strip {} \;
 
 # Strip vmlinux
 # strip "$HDR_PATH/vmlinux"
+
+# Remove duplicate folder
+rm -r "$HDR_PATH"/hdr
 
 # Create an archive for the headers
 cd "$HDR_PATH"/..

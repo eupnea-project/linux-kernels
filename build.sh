@@ -3,7 +3,7 @@
 # Exit on errors
 set -e
 
-KERNEL_VERSION=v6.1.9
+KERNEL_VERSION=v6.1.10
 
 # Clone mainline
 if [[ ! -d $KERNEL_VERSION ]]; then

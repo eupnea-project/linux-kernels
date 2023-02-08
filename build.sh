@@ -11,7 +11,7 @@ if [[ ! -d $KERNEL_VERSION ]]; then
 fi
 
 echo "Setting up the bootlogo"
-cp logo/depthboot_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
+cp logo/eupnea_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
 
 cd $KERNEL_VERSION
 

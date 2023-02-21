@@ -15,10 +15,6 @@ cp logo/eupnea_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut2
 
 cd $KERNEL_VERSION
 
-# Apply patch to fix speakers on kbl avs
-# This has been merged into mainline since v6.2
-patch -p1 <../kbl-avs.patch
-
 # Prevent a dirty kernel
 echo "mod" >>.gitignore
 touch .scmversion

@@ -32,7 +32,7 @@ jobs:
         run: bash build.sh
 
       - name: Uploading as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: kernel-stable
           retention-days: 1
@@ -61,9 +61,8 @@ jobs:
       - name: Generating release tag and setting prerelease + name
         id: tag
         run: |
-          echo "::set-output name=release_tag::dev-build" 
-          echo "::set-output name=release_type::true"
-          echo "::set-output name=commit_message::$(git log -1 --pretty=format:"%s")"
+          message=$(git log -1 --pretty=format:"%s")
+          echo "commit_message=$message" >> $GITHUB_OUTPUT
 
       - name: creating tmp folder
         run: mkdir /tmp/artifacts
@@ -76,9 +75,9 @@ jobs:
       - name: Publishing new release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag.outputs.release_tag }}
+          tag_name: dev-build
           name: Kernel build - ${{ steps.tag.outputs.commit_message }}
-          prerelease: ${{ steps.tag.outputs.release_type }}
+          prerelease: true
           body: |
             Triggered by ${{ github.sha }} at ${{ github.event.repository.updated_at }}
           files: |

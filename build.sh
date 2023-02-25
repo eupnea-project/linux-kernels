@@ -22,7 +22,7 @@ touch .scmversion
 # Apply patches to the kernel
 for file in $(ls ../patches);
 do
-	patch -p1 < $file
+	patch -p1 < ../patches/$file
 done
 
 # Copy config if it doesn't exist

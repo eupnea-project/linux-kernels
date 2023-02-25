@@ -19,6 +19,12 @@ cd $KERNEL_VERSION
 echo "mod" >>.gitignore
 touch .scmversion
 
+# Apply patches to the kernel
+for file in $(ls ../patches);
+do
+	patch -p1 < $file
+done
+
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit
 

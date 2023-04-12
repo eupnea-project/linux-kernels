@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 1
 
       - name: Installing dependencies
-        run: sudo apt update && sudo apt install git build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison binutils
+        run: sudo apt update && sudo apt install -y git build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison binutils dracut
 
       - name: Building Kernel
         run: bash build.sh

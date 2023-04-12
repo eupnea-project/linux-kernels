@@ -20,15 +20,15 @@ echo "mod" >>.gitignore
 touch .scmversion
 
 # Apply patches to the kernel
-for file in $(ls ../patches);
-do
-	patch -p1 < ../patches/$file
+for file in $(ls ../patches); do
+  patch -p1 <../patches/$file
 done
 
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit
 
-make olddefconfig
+# Generate initramfs
+dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.img
 
 # If the terminal is interactive and not running in docker
 if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then

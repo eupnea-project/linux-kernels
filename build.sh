@@ -28,7 +28,7 @@ done
 [[ -f .config ]] || cp ../kernel.conf .config || exit
 
 # Generate initramfs
-dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.img
+dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz
 
 # If the terminal is interactive and not running in docker
 if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then

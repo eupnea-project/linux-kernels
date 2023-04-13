@@ -10,9 +10,6 @@ if [[ ! -d $KERNEL_VERSION ]]; then
   git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git $KERNEL_VERSION
 fi
 
-echo "Setting up the bootlogo"
-cp logo/eupnea_boot_logo.ppm $KERNEL_VERSION/drivers/video/logo/logo_linux_clut224.ppm
-
 cd $KERNEL_VERSION
 
 # Prevent a dirty kernel

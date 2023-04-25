@@ -1,8 +1,8 @@
 diff --git a/sound/soc/intel/avs/boards/max98357a.c b/sound/soc/intel/avs/boards/max98357a.c
-index 921f42caf7e0..183123d08c5a 100644
+index 183123d08..921f42caf 100644
 --- a/sound/soc/intel/avs/boards/max98357a.c
 +++ b/sound/soc/intel/avs/boards/max98357a.c
-@@ -8,6 +8,7 @@ 
+@@ -8,7 +8,6 @@
  
  #include <linux/module.h>
  #include <linux/platform_device.h>
@@ -10,7 +10,7 @@ index 921f42caf7e0..183123d08c5a 100644
  #include <sound/soc.h>
  #include <sound/soc-acpi.h>
  #include <sound/soc-dapm.h>
-@@ -24,6 +25,26 @@  static const struct snd_soc_dapm_route card_base_routes[] = {
+@@ -25,26 +24,6 @@ static const struct snd_soc_dapm_route card_base_routes[] = {
  	{ "Spk", NULL, "Speaker" },
  };
  
@@ -37,7 +37,7 @@ index 921f42caf7e0..183123d08c5a 100644
  static int avs_create_dai_link(struct device *dev, const char *platform_name, int ssp_port,
  			       struct snd_soc_dai_link **dai_link)
  {
-@@ -55,6 +76,7 @@  static int avs_create_dai_link(struct device *dev, const char *platform_name, in
+@@ -76,7 +55,6 @@ static int avs_create_dai_link(struct device *dev, const char *platform_name, in
  	dl->num_platforms = 1;
  	dl->id = 0;
  	dl->dai_fmt = SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_CBS_CFS;
@@ -45,4 +45,3 @@ index 921f42caf7e0..183123d08c5a 100644
  	dl->nonatomic = 1;
  	dl->no_pcm = 1;
  	dl->dpcm_playback = 1;
-

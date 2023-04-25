@@ -18,6 +18,7 @@ touch .scmversion
 
 # Apply patches to the kernel
 for file in $(ls ../patches); do
+  echo applying $file
   patch -p1 <../patches/$file
 done
 

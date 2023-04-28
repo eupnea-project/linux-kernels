@@ -23,8 +23,6 @@ for file in $(ls ../patches); do
 done
 
 # commit patches to local kernel repo to prevent a dirty kernel
-git config user.email "patches@eupnea.project"
-git config user.name "Patches"
 git add .
 git commit -m "Applied patches"
 

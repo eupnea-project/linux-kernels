@@ -12,21 +12,15 @@ fi
 
 cd $KERNEL_VERSION
 
-# Prevent a dirty kernel
-echo "mod" >>.gitignore
-# touch .scmversion
-
 # Apply patches to the kernel
 for file in $(ls ../patches); do
   echo applying $file
   patch -p1 <../patches/$file
 done
 
-# commit patches to local kernel repo to prevent a dirty kernel
-git config user.email "patches@eupnea.project"
-git config user.name "Patches"
-git add .
-git commit -m "Applied patches"
+# Prevent a dirty kernel
+echo "mod" >>.gitignore
+rm -r ./.git
 
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit

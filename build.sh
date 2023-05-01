@@ -25,9 +25,6 @@ rm -r ./.git
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit
 
-# Generate initramfs
-dracut --no-kernel --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz
-
 # If the terminal is interactive and not running in docker
 if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
 
@@ -53,8 +50,7 @@ else
 
 fi
 
-cp arch/x86/boot/bzImage ../bzImage
-echo "Kernel build completed"
+echo "Initial Kernel build completed"
 
 # Install modules
 rm -rf mod || true
@@ -128,5 +124,20 @@ rm -r "$HDR_PATH"/hdr
 cd "$HDR_PATH"/..
 tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
+
+# Symlink the built kernels into /lib/modules for dracut
+ln -s mod/$KERNEL_VERSION /lib/modules/$KERNEL_VERSION
+# Generate initramfs from the built modules
+dracut --kver=$KERNEL_VERSION --add-drivers="i915" --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz
+# remove symlink
+rm /lib/modules/$KERNEL_VERSION
+
+# rebuild kernel with initramfs
+make clean # clean cwd
+make -j"$(nproc)"
+
+# Copy kernel to root
+echo "Second kernel build completed"
+cp arch/x86/boot/bzImage ../bzImage
 
 echo "Full build completed"

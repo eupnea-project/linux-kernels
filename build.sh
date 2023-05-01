@@ -25,6 +25,10 @@ rm -r ./.git
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit
 
+# make dummy initramfs file
+# the first builds bzImage is not used anyways
+touch initramfs.cpio.gz
+
 # If the terminal is interactive and not running in docker
 if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
 
@@ -133,7 +137,6 @@ dracut --kver=$KERNEL_VERSION --add-drivers="i915" --gzip --reproducible --no-ho
 rm /lib/modules/$KERNEL_VERSION
 
 # rebuild kernel with initramfs
-make clean # clean cwd
 make -j"$(nproc)"
 
 # Copy kernel to root

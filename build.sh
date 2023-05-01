@@ -132,7 +132,7 @@ echo "Headers archive created!"
 # Symlink the built kernels into /lib/modules for dracut
 ln -s mod/$KERNEL_VERSION /lib/modules/$KERNEL_VERSION
 # Generate initramfs from the built modules
-dracut --kver=$KERNEL_VERSION --add-drivers="i915" --gzip --reproducible --no-hostonly --nofscks initramfs.cpio.gz
+dracut --kver=$KERNEL_VERSION --add-drivers="i915" --gzip --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
 # remove symlink
 rm /lib/modules/$KERNEL_VERSION
 

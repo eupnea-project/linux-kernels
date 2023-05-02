@@ -130,8 +130,8 @@ tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
 
 # Symlink the built kernels into /lib/modules for dracut
-sudo ln -s "$(pwd)/mod/$KERNEL_VERSION-eupnea" /lib/modules/$KERNEL_VERSION-eupnea
-echo Linking "$(pwd)/mod/$KERNEL_VERSION-eupnea" to /lib/modules/$KERNEL_VERSION-eupnea
+sudo ln -s "$(pwd)/../mod/$KERNEL_VERSION-eupnea" /lib/modules/$KERNEL_VERSION-eupnea
+echo Linking "$(pwd)/../mod/$KERNEL_VERSION-eupnea" to /lib/modules/$KERNEL_VERSION-eupnea
 # Generate initramfs from the built modules
 dracut --kver=$KERNEL_VERSION-eupnea --add-drivers="i915" --gzip --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
 # remove symlink

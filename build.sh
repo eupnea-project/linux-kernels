@@ -134,9 +134,9 @@ cd ..
 sudo ln -s "$(pwd)/mod/$KVER" /lib/modules/$KVER
 echo Linking "$(pwd)/mod/$KVER" to /lib/modules/$KVER
 # Generate initramfs from the built modules
-dracut --kver=$KVER --add-drivers="i915" --gzip --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
+dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
 # remove symlink
-sudo rm /lib/modules/$KVER
+sudo rm -r /lib/modules/$KVER
 
 # rebuild kernel with initramfs
 make -j"$(nproc)"

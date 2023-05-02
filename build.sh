@@ -128,14 +128,15 @@ rm -r "$HDR_PATH"/hdr
 cd "$HDR_PATH"/..
 tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
+cd ..
 
 # Symlink the built kernels into /lib/modules for dracut
-sudo ln -s "$(pwd)/../mod/$KERNEL_VERSION-eupnea" /lib/modules/$KERNEL_VERSION-eupnea
-echo Linking "$(pwd)/../mod/$KERNEL_VERSION-eupnea" to /lib/modules/$KERNEL_VERSION-eupnea
+sudo ln -s "$(pwd)/mod/$KVER" /lib/modules/$KVER
+echo Linking "$(pwd)/mod/$KVER" to /lib/modules/$KVER
 # Generate initramfs from the built modules
-dracut --kver=$KERNEL_VERSION-eupnea --add-drivers="i915" --gzip --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
+dracut --kver=$KVER --add-drivers="i915" --gzip --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
 # remove symlink
-sudo rm /lib/modules/$KERNEL_VERSION-eupnea
+sudo rm /lib/modules/$KVER
 
 # rebuild kernel with initramfs
 make -j"$(nproc)"

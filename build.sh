@@ -13,14 +13,17 @@ fi
 cd $KERNEL_VERSION
 
 # Apply patches to the kernel
-for file in $(ls ../patches); do
-  echo applying $file
-  patch -p1 <../patches/$file
-done
+if [[ ! -e .patches_applied ]]; then
+  for file in $(ls ../patches); do
+    echo applying $file
+    patch -p1 <../patches/$file
+  done
+  touch .patches_applied
+fi
 
 # Prevent a dirty kernel
 echo "mod" >>.gitignore
-rm -r ./.git
+rm -rf .git
 
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit

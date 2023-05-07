@@ -71,7 +71,7 @@ if [[ -d /lib/modules/$KVER ]]; then
 	read -p "Would you like to temporarily rename your modules folder to resolve the conflict? (y/n): " -n 1 -r
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
 		echo "Backing up modules"
-		mv /lib/modules/$KVER /lib/modules/$KVER-backup
+		sudo mv /lib/modules/$KVER /lib/modules/$KVER-backup
 	else
 		echo "Kernel build aborted"
 		exit
@@ -156,7 +156,7 @@ dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --for
 # remove built modules
 sudo rm -rf /lib/modules/$KVER
 # restore original modules if needed
-mv /lib/modules/$KVER-backup /lib/modules/$KVER || true
+sudo mv /lib/modules/$KVER-backup /lib/modules/$KVER || true
 
 # rebuild kernel with initramfs
 make -j"$(nproc)"

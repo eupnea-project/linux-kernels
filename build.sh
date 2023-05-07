@@ -59,9 +59,25 @@ fi
 
 echo "Initial Kernel build completed"
 
+KVER=$(file -bL arch/x86/boot/bzImage | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
+
 # Install modules
 rm -rf mod || true
 mkdir mod
+
+if [[ -d /lib/modules/$KVER ]]; then
+	echo "Your currently installed kernel modules conflict with the ones being built"
+	read -p "Would you like to temporarily rename your modules folder to resolve the conflict? (y/n): " -n 1 -r
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		MV_MODULES=1
+		echo "Backing up modules"
+		mv /lib/modules/$KVER /lib/modules/$KVER-backup
+	else
+		echo "Kernel build aborted"
+		exit
+	fi
+fi
+
 make -j"$(nproc)" modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
 
 # Move modules folder to root of mod
@@ -82,7 +98,6 @@ echo "Modules archive created!"
 cd ../
 rm -r hdr || true
 mkdir -p hdr
-KVER=$(file -bL arch/x86/boot/bzImage | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
 HDR_PATH=$(pwd)/hdr/linux-headers-$KVER
 
 # Build files
@@ -133,13 +148,15 @@ tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
 cd ..
 
-# Symlink the built kernels into /lib/modules for dracut
-sudo ln -s "$(pwd)/mod/$KVER" /lib/modules/$KVER
-echo Linking "$(pwd)/mod/$KVER" to /lib/modules/$KVER
+# Install the built modules into /lib/modules for dracut
+tar xvf ../modules.tar.xz -C /lib/modules
+echo Installing modules to /lib/modules/$KVER
 # Generate initramfs from the built modules
 dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
-# remove symlink
-sudo rm -r /lib/modules/$KVER
+# remove built modules
+sudo rm -rf /lib/modules/$KVER
+# restore original modules if needed
+[[ $MV_MODULES -eq 1 ]] && mv /lib/modules/$KVER-backup /lib/modules/$KVER
 
 # rebuild kernel with initramfs
 make -j"$(nproc)"

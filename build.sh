@@ -27,6 +27,7 @@ rm -rf .git
 
 # Copy config if it doesn't exist
 [[ -f .config ]] || cp ../kernel.conf .config || exit
+make olddefconfig
 
 # make dummy initramfs file
 # the first builds bzImage is not used anyways

@@ -31,7 +31,21 @@ make olddefconfig
 
 # make dummy initramfs file
 # the first builds bzImage is not used anyways
-touch initramfs.cpio.gz
+touch initramfs.cpio.xz
+
+# Prompt user if modules in /lib/modules conflict with new modules being built
+# this is needed later for dracut
+if [[ -d /lib/modules/${KERNEL_VERSION#v}-eupnea ]]; then
+  echo "Your currently installed kernel modules conflict with the ones being built"
+  read -p "Would you like to temporarily rename your modules folder to resolve the conflict? (y/n): " -n 1 -r
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Modules will be backed up before dracut build"
+    MV_MODULES=1
+  else
+    echo "Kernel build aborted"
+    exit
+  fi
+fi
 
 # If the terminal is interactive and not running in docker
 if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
@@ -65,18 +79,6 @@ KVER=$(file -bL arch/x86/boot/bzImage | grep -o 'version [^ ]*' | cut -d ' ' -f 
 # Install modules
 rm -rf mod || true
 mkdir mod
-
-if [[ -d /lib/modules/$KVER ]]; then
-	echo "Your currently installed kernel modules conflict with the ones being built"
-	read -p "Would you like to temporarily rename your modules folder to resolve the conflict? (y/n): " -n 1 -r
-	if [[ $REPLY =~ ^[Yy]$ ]]; then
-		echo "Backing up modules"
-		sudo mv /lib/modules/$KVER /lib/modules/$KVER-backup
-	else
-		echo "Kernel build aborted"
-		exit
-	fi
-fi
 
 make -j"$(nproc)" modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
 
@@ -148,15 +150,17 @@ tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
 cd ..
 
-# Install the built modules into /lib/modules for dracut
+# move conflicting modules if needed
+[[ $MV_MODULES -eq 1 ]] && mv "/lib/modules/$KVER" "/lib/modules/$KVER-backup"
+# dracut requires the modules to be in /lib/modules -> unpack the built modules there
 sudo tar xvf ../modules.tar.xz -C /lib/modules
-echo Installing modules to /lib/modules/$KVER
+echo Installing modules to "/lib/modules/$KVER"
 # Generate initramfs from the built modules
-dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force --nofscks initramfs.cpio.gz
+dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force --nofscks initramfs.cpio.xz
 # remove built modules
-sudo rm -rf /lib/modules/$KVER
+sudo rm -rf "/lib/modules/$KVER"
 # restore original modules if needed
-sudo mv /lib/modules/$KVER-backup /lib/modules/$KVER || true
+sudo mv "/lib/modules/$KVER-backup" "/lib/modules/$KVER" || true
 
 # rebuild kernel with initramfs
 make -j"$(nproc)"

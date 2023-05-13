@@ -1,103 +1,204 @@
 #!/bin/bash
 
 # Exit on errors
-set -e
+#set -e
 
 KERNEL_VERSION=v6.3.2
+KERNEL_SOURCE=https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+BUILD_ROOT_DIRECTORY=$(pwd)
+MODULES_FOLDER=modules
+KERNEL_CONFIG=kernel.conf
 
-# Clone mainline
-if [[ ! -d $KERNEL_VERSION ]]; then
-  git clone --depth 1 --branch $KERNEL_VERSION --single-branch https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git $KERNEL_VERSION
-fi
+#outputs given message and color choice
+#First parameter is message to output
+#Second parameter is color choice
+write_output() {
 
-cd $KERNEL_VERSION
+  case ${2,,} in
+  green)
+    echo -e "\e[32m$1\e[0m"
+    ;;
+  yellow)
+    echo -e "\e[33m$1\e[0m"
+    ;;
+  red)
+    echo -e "\e[31m$1\e[0m"
+    ;;
+  blue)
+    echo -e "\e[34m$1\e[0m"
+    ;;
+  magenta)
+    echo -e "\e[35m$1\e[0m"
+    ;;
+  white)
+    echo -e "\e[37m$1\e[0m"
+    ;;
+  *)
+    echo -e $1
+    ;;
+  esac
+}
 
-# Apply patches to the kernel
-if [[ ! -e .patches_applied ]]; then
-  for file in $(ls ../patches); do
-    echo applying $file
-    patch -p1 <../patches/$file
-  done
-  touch .patches_applied
-fi
-
-# Prevent a dirty kernel
-echo "mod" >>.gitignore
-rm -rf .git
-
-# Copy config if it doesn't exist
-[[ -f .config ]] || cp ../kernel.conf .config || exit
-make olddefconfig
-
-# make dummy initramfs file
-# the first builds bzImage is not used anyways
-touch initramfs.cpio.xz
-
-# Prompt user if modules in /lib/modules conflict with new modules being built
-# this is needed later for dracut
-if [[ -d /lib/modules/${KERNEL_VERSION#v}-eupnea ]]; then
-  echo "Your currently installed kernel modules conflict with the ones being built"
-  read -p "Would you like to temporarily rename your modules folder to resolve the conflict? (y/n): " -n 1 -r
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Modules will be backed up before dracut build"
-    MV_MODULES=1
+check_if_directory_exists() {
+  if [[ -d $1 ]]; then
+    return 0
   else
-    echo "Kernel build aborted"
-    exit
+    return 1
   fi
-fi
+}
 
-# If the terminal is interactive and not running in docker
-if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
+check_if_file_exists() {
+  if [[ -f $1 ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
 
+clone_mainline() {
+  check_if_directory_exists $KERNEL_VERSION
+  if [[ $? -eq 1 ]]; then
+    if ! git clone --depth 1 --branch $KERNEL_VERSION --single-branch $KERNEL_SOURCE $KERNEL_VERSION; then
+      write_output "Failed to clone repository. Please check your network connection and try again." "red"
+      exit 1
+    fi
+  else
+    write_output "Kernel already cloned!" "yellow"
+  fi
+  cd $KERNEL_VERSION
+}
+
+apply_kernel_patches() {
+  check_if_file_exists ".patches_applied"
+  if [[ $? -eq 1 ]]; then
+    write_output "Applying kernel patches." "yellow"
+    echo -e "\e[33m"
+    for file in $(ls $BUILD_ROOT_DIRECTORY/patches); do
+
+      if ! patch -p1 <$BUILD_ROOT_DIRECTORY/patches/$file; then
+        write_output "Failed to apply patch $file." "red"
+        exit 1
+      fi
+    done
+    echo -e "\e[0m"
+    touch .patches_applied
+  else
+    write_output "Kernel patches already applied!" "yellow"
+  fi
+}
+
+setup_kernel_config() {
+  check_if_file_exists ".config"
+  if [[ $? -eq 1 ]]; then
+    write_output "No existing kernel config, creating config file" "yellow"
+    cp $BUILD_ROOT_DIRECTORY/$KERNEL_CONFIG $BUILD_ROOT_DIRECTORY/$KERNEL_VERSION/.config
+  else
+    write_output "Kernel config already exists" "yellow"
+  fi
+  make olddefconfig >null
+
+  #empty initial initramfs file to be populated after kernel build
+  touch initramfs.cpio.xz
+}
+
+#verifies that terminal is interactive and not running in docker
+check_terminal_is_interactive() {
+
+  if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+#Builds clean kernel if 0, incremental build if 1
+build_kernel() {
+  if [[ $? -eq 0 ]]; then
+    write_output "Building clean kernel" "yellow"
+    if ! make -j"$(nproc)"; then
+      write_output "Kernel build failed." "red"
+      exit 1
+    else
+      write_output "Kernel build completed" "green"
+    fi
+  else
+    write_output "Building incremental kernel" "yellow"
+    make clean
+    if ! make -j"$(nproc)"; then
+      write_output "Kernel build failed." "red"
+    else
+      write_output "Kernel build completed" "green"
+    fi
+  fi
+}
+
+edit_kernel_config() {
+
+  cd $BUILD_ROOT_DIRECTORY/$KERNEL_VERSION
+  make menuconfig
+}
+
+user_input() {
+
+  echo -e "\e[33m"
   read -p "Would you like to make edits to the kernel config? (y/n) " -n 1 -r
   echo
+  echo -e "\e[0m"
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    make menuconfig
+    edit_kernel_config
   fi
 
-  echo "Building kernel"
-  read -p "Would you like a full rebuild? (y/n) " -n 1 -r
+  echo -e "\e[33m"
+  read -p "Make clean kernel build? (y/n)" -n 1 -r
   echo
+  echo -e "\e[0m"
   if [[ $REPLY =~ ^[Yy]$ ]]; then
-    make clean
-    make -j"$(nproc)" || exit
+    build_kernel 0
   else
-    make -j"$(nproc)" || exit
+    build_kernel 1
   fi
 
+}
+
+clone_mainline
+apply_kernel_patches
+setup_kernel_config
+check_terminal_is_interactive
+if [[ $? -eq 0 ]]; then
+  user_input
 else
-
-  make -j"$(nproc)"
-
+  build_kernel 0
 fi
-
-echo "Initial Kernel build completed"
 
 KVER=$(file -bL arch/x86/boot/bzImage | grep -o 'version [^ ]*' | cut -d ' ' -f 2)
 
-# Install modules
-rm -rf mod || true
-mkdir mod
+#Installs modules to $MODULES_FOLDER
+install_modules() {
+  check_if_directory_exists $MODULES_FOLDER
+  if [[ $? -eq 1 ]]; then
+    sudo rm -r $MODULES_FOLDER
+    mkdir $MODULES_FOLDER
 
-make -j"$(nproc)" modules_install INSTALL_MOD_PATH=mod INSTALL_MOD_STRIP=1
+  else
+    mkdir $MODULES_FOLDER
 
-# Move modules folder to root of mod
-cd mod
-mv lib/modules/* .
-rm -r lib
+  fi
+  make -j"$(nproc)" modules_install INSTALL_MOD_PATH=$MODULES_FOLDER INSTALL_MOD_STRIP=1
+}
+install_modules
 
+cd $MODULES_FOLDER/lib/modules/$KVER
 # Remove broken symlinks
 rm -rf */build
 rm -rf */source
 
 # Create an archive for the modules
-tar -cvI "xz -9 -T0" -f ../../modules.tar.xz *
+tar -cvI "xz -9 -T0" -f $BUILD_ROOT_DIRECTORY/modules.tar.xz *
 echo "Modules archive created!"
 
 # Create an archive containing headers to build out of tree modules
 # Taken from the archlinux linux PKGBUILD
-cd ../
+cd $BUILD_ROOT_DIRECTORY/$KERNEL_VERSION
 rm -r hdr || true
 mkdir -p hdr
 HDR_PATH=$(pwd)/hdr/linux-headers-$KVER
@@ -150,13 +251,8 @@ tar -cvI "xz -9 -T0" -f ../../headers.tar.xz *
 echo "Headers archive created!"
 cd ..
 
-# move conflicting modules if needed
-[[ $MV_MODULES -eq 1 ]] && mv "/lib/modules/$KVER" "/lib/modules/$KVER-backup"
-# dracut requires the modules to be in /lib/modules -> unpack the built modules there
-sudo tar xvf ../modules.tar.xz -C /lib/modules
-echo Installing modules to "/lib/modules/$KVER"
 # Generate initramfs from the built modules
-dracut --kver=$KVER --add-drivers="i915" --xz --reproducible --no-hostonly --force --nofscks initramfs.cpio.xz
+dracut --kver=$KVER --add-drivers="i915" --kmoddir $BUILD_ROOT_DIRECTORY/$KERNEL_VERSION/$MODULES_FOLDER --xz --reproducible --no-hostonly --force --nofscks initramfs.cpio.xz
 # remove built modules
 sudo rm -rf "/lib/modules/$KVER"
 # restore original modules if needed

@@ -22,8 +22,23 @@ if __name__ == "__main__":
     bash(f"git clone --depth=1 --branch={latest_version} https://git.kernel.org/pub/scm/linux/kernel/git/"
          f"stable/linux.git")
 
-    # Copy old config into local stable repo
-    bash("cp kernel.conf linux/.config")
+    # pull fresh arch linux config to use as base.conf
+    urlretrieve(url="https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/linux/trunk/config",
+                filename="configs/base.conf")
+
+    # duplicate base.conf to temp_combined.conf
+    with open("configs/base.conf", "r") as base:
+        with open("temp_combined.conf", "w") as combined:
+            combined.write(base.read())
+
+    # append all overlays to combined.conf
+    for file in os.listdir("configs/overlays"):
+        with open(f"configs/overlays/{file}", "r") as overlay:
+            with open("temp_combined.conf", "a") as combined:
+                combined.write("\n" + overlay.read())
+
+    # Copy combined config into local stable repo
+    bash("cp temp_combined.conf linux/.config")
 
     # Update config
     bash("cd linux && make olddefconfig")
@@ -35,5 +50,5 @@ if __name__ == "__main__":
     with open("build.sh", "w") as file:
         file.writelines(build_script)
 
-    # Copy new config back to repo
-    bash("cp linux/.config kernel.conf")
+    # Copy updated combined config back to repo
+    bash("cp linux/.config configs/combined.conf")

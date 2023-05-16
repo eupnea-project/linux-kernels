@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-functions:
+  update-config:
     runs-on: ubuntu-latest
     steps:
       - name: Checking out repository code

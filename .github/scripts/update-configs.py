@@ -25,16 +25,16 @@ if __name__ == "__main__":
 
     # pull fresh arch linux config to use as base.conf
     urlretrieve(url="https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/linux/trunk/config",
-                filename="configs/base.conf")
+                filename="base.conf")
 
     # duplicate base.conf to temp_combined.conf
-    with open("configs/base.conf", "r") as base:
+    with open("base.conf", "r") as base:
         with open("temp_combined.conf", "w") as combined:
             combined.write(base.read())
 
     # append all overlays to combined.conf
-    for file in os.listdir("configs/overlays"):
-        with open(f"configs/overlays/{file}", "r") as overlay:
+    for file in os.listdir("kernel-conf-overlays"):
+        with open(f"kernel-conf-overlays/{file}", "r") as overlay:
             with open("temp_combined.conf", "a") as combined:
                 combined.write("\n" + overlay.read())
 
@@ -44,12 +44,12 @@ if __name__ == "__main__":
     # Update config
     bash("cd linux && make olddefconfig")
 
+    # Copy updated combined config back to repo
+    bash("cp linux/.config ./combined-kernel.conf")
+
     # Update bash script
     with open("build.sh", "r") as file:
         build_script = file.readlines()
     build_script[5] = f"KERNEL_VERSION={latest_version}\n"
     with open("build.sh", "w") as file:
         file.writelines(build_script)
-
-    # Copy updated combined config back to repo
-    bash("cp linux/.config configs/combined.conf")

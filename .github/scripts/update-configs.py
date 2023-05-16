@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
 import subprocess
-from urllib.request import urlopen
+from urllib.request import urlopen, urlretrieve
 
 
 def bash(command: str) -> str:

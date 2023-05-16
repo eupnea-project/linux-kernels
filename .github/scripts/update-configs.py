@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     # Get the latest stable version
     latest_version = "v" + data["latest_stable"]["version"]
-
+    latest_source  = data["releases"][1]["source"]
     # Git clone the latest stable version
     bash(f"git clone --depth=1 --branch={latest_version} https://git.kernel.org/pub/scm/linux/kernel/git/"
          f"stable/linux.git")
@@ -32,6 +32,7 @@ if __name__ == "__main__":
     with open("build.sh", "r") as file:
         build_script = file.readlines()
     build_script[3] = f"KERNEL_VERSION={latest_version[1:]}\n"
+    build_script[5] = f"KERNEL_SOURCE_URL={latest_source[0:]}\n"
     with open("build.sh", "w") as file:
         file.writelines(build_script)
 

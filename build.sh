@@ -1,9 +1,9 @@
 #!/bin/bash
 
 KERNEL_VERSION=6.3.2
-KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
+KERNEL_VERSION=6.3.2
 KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.2.tar.xz
-BUILD_ROOT_DIRECTORY=$(pwd)
+KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.2.tar.xz
 KERNEL_SOURCE_FOLDER=$BUILD_ROOT_DIRECTORY/linux-$KERNEL_VERSION
 KERNEL_PATCHES=$BUILD_ROOT_DIRECTORY/patches
 MODULES_FOLDER=$KERNEL_SOURCE_FOLDER/modules

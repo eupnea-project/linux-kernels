@@ -17,16 +17,16 @@ INITRAMFS_NAME=initramfs.cpio.xz
 #Second parameter is color choice
 write_output() {
   case ${2,,} in
-  green)
+  green) # user question
     printf "\e[32m$1\e[0m"
     ;;
-  yellow)
+  yellow) # non-critical error / warning
     printf "\e[33m$1\e[0m"
     ;;
-  red)
+  red) # critical error -> script will exit
     printf "\e[31m$1\e[0m"
     ;;
-  blue)
+  blue) # status update
     printf "\e[34m$1\e[0m"
     ;;
   magenta)
@@ -65,7 +65,7 @@ get_kernel_source() {
   check_if_directory_exists $KERNEL_SOURCE_FOLDER
   if [[ $? -eq 1 ]]; then
     if ! curl $KERNEL_SOURCE_URL -o $KERNEL_SOURCE_NAME.tar.xz; then
-      write_output "Failed to download kernel using curl, trying wget" "red"
+      write_output "Failed to download kernel using curl, trying wget" "yellow"
       echo -e "\n"
       if ! wget $KERNEL_SOURCE_URL; then
         write_output "Failed to download using wget, check network connection." "red"
@@ -80,7 +80,7 @@ get_kernel_source() {
     fi
 
   else
-    write_output "Kernel already cloned!" "blue"
+    write_output "Kernel already cloned!" "yellow"
     echo -e "\n"
   fi
 
@@ -106,7 +106,7 @@ apply_kernel_patches() {
     echo -e "\e[0m"
     touch $BUILD_ROOT_DIRECTORY/.patches_applied
   else
-    write_output "Kernel patches already applied!" "blue"
+    write_output "Kernel patches already applied!" "yellow"
     echo
   fi
 }
@@ -118,7 +118,7 @@ apply_kernel_patches() {
 setup_kernel_config() {
   check_if_file_exists ".config"
   if [[ $? -eq 1 ]]; then
-    write_output "No existing kernel config, creating config file" "blue"
+    write_output "No existing kernel config, creating config file" "yellow"
     echo
     cp $BUILD_ROOT_DIRECTORY/$KERNEL_CONFIG $KERNEL_SOURCE_FOLDER/.config
   else
@@ -151,7 +151,7 @@ build_kernel() {
       echo
       exit 1
     else
-      write_output "Kernel build completed" "green"
+      write_output "Kernel build completed" "blue"
       echo -e "\n"
     fi
   else
@@ -163,7 +163,7 @@ build_kernel() {
       echo
       exit 1
     else
-      write_output "Kernel build completed" "green"
+      write_output "Kernel build completed" "blue"
       echo -e "\n"
     fi
   fi
@@ -191,7 +191,7 @@ install_modules() {
 
   # Create an archive for the modules
   tar -cvI "xz -9 -T0" -f $BUILD_ROOT_DIRECTORY/modules.tar.xz *
-  write_output "Modules archive created." "green"
+  write_output "Modules archive created." "blue"
 
 }
 
@@ -256,7 +256,7 @@ install_headers() {
   # Create an archive for the headers
   cd "$HDR_PATH"/..
   tar -cvI "xz -9 -T0" -f $BUILD_ROOT_DIRECTORY/headers.tar.xz *
-  write_output "Header archive created!" "green"
+  write_output "Header archive created!" "blue"
   echo -e "\n"
 
 }
@@ -285,7 +285,7 @@ create_initramfs() {
 #Gets required input from user to run the kernel build.
 user_input() {
 
-  write_output "Would you like to make edits to the kernel config? (y/n): " "blue"
+  write_output "Would you like to make edits to the kernel config? (y/n): " "green"
   read -n 1 -r -s response
   echo $response
   echo -e "\n"
@@ -293,7 +293,7 @@ user_input() {
     edit_kernel_configs
   fi
 
-  write_output "Do you want to perform a clean build?\nThis will generate a new build from the ground up, \nrather than using the previous build. (y/n): " "blue"
+  write_output "Do you want to perform a clean build?\nThis will generate a new build from the ground up, \nrather than using the previous build. (y/n): " "green"
   read -n 1 -r -s response
   echo $response
   echo -e "\n"
@@ -324,5 +324,5 @@ create_initramfs
 write_output "Copying kernel to root." "blue"
 echo -e "\n"
 cp $KERNEL_SOURCE_FOLDER/arch/x86/boot/bzImage $BUILD_ROOT_DIRECTORY/bzImage
-write_output "Build complete!" "green"
+write_output "Build complete!" "blue"
 echo -e "\n"

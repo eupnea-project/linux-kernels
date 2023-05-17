@@ -275,7 +275,7 @@ create_initramfs() {
   write_output "Building initramfs" "blue"
   echo -e "\n"
   # Generate initramfs from the built modules
-  dracut -c $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG initramfs.cpio.xz --kver $KVER --kmoddir "$MODULES_FOLDER/lib/modules/$KVER" --force
+  sudo dracut -c $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG initramfs.cpio.xz --kver $KVER --kmoddir "$MODULES_FOLDER/lib/modules/$KVER" --force
   write_output "Building kernel with initramfs" "blue"
   echo -e "\n"
   build_kernel 0

@@ -1,9 +1,9 @@
 #!/bin/bash
 
 KERNEL_VERSION=6.3.2
-KERNEL_VERSION=6.3.2
 KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.2.tar.xz
-KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.2.tar.xz
+KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
+BUILD_ROOT_DIRECTORY=$(pwd)
 KERNEL_SOURCE_FOLDER=$BUILD_ROOT_DIRECTORY/linux-$KERNEL_VERSION
 KERNEL_PATCHES=$BUILD_ROOT_DIRECTORY/patches
 MODULES_FOLDER=$KERNEL_SOURCE_FOLDER/modules
@@ -80,7 +80,7 @@ get_kernel_source() {
     fi
 
   else
-    write_output "Kernel already cloned!" "yellow"
+    write_output "Kernel already cloned!" "blue"
     echo -e "\n"
   fi
 
@@ -92,7 +92,7 @@ apply_kernel_patches() {
   cd $KERNEL_SOURCE_FOLDER
   check_if_file_exists "$BUILD_ROOT_DIRECTORY/.patches_applied"
   if [[ $? -eq 1 ]]; then
-    write_output "Applying kernel patches." "yellow"
+    write_output "Applying kernel patches." "blue"
     echo
     echo -e "\e[33m"
     for file in $(ls $KERNEL_PATCHES); do
@@ -106,7 +106,7 @@ apply_kernel_patches() {
     echo -e "\e[0m"
     touch $BUILD_ROOT_DIRECTORY/.patches_applied
   else
-    write_output "Kernel patches already applied!" "yellow"
+    write_output "Kernel patches already applied!" "blue"
     echo
   fi
 }
@@ -118,11 +118,11 @@ apply_kernel_patches() {
 setup_kernel_config() {
   check_if_file_exists ".config"
   if [[ $? -eq 1 ]]; then
-    write_output "No existing kernel config, creating config file" "yellow"
+    write_output "No existing kernel config, creating config file" "blue"
     echo
     cp $BUILD_ROOT_DIRECTORY/$KERNEL_CONFIG $KERNEL_SOURCE_FOLDER/.config
   else
-    write_output "Kernel config already exists" "yellow"
+    write_output "Kernel config already exists" "blue"
     echo -e "\n"
   fi
 
@@ -144,7 +144,7 @@ check_terminal_is_interactive() {
 build_kernel() {
   cd $KERNEL_SOURCE_FOLDER
   if [[ $1 -eq 0 ]]; then
-    write_output "Building using existing build" "yellow"
+    write_output "Building using existing build" "blue"
     echo
     if ! make -j"$(nproc)"; then
       write_output "Kernel build failed." "red"
@@ -155,7 +155,7 @@ build_kernel() {
       echo -e "\n"
     fi
   else
-    write_output "Building clean kernel" "yellow"
+    write_output "Building clean kernel" "blue"
     echo
     make clean
     if ! make -j"$(nproc)"; then
@@ -272,11 +272,11 @@ edit_kernel_config() {
 create_initramfs() {
   cd $KERNEL_SOURCE_FOLDER
 
-  write_output "Building initramfs" "yellow"
+  write_output "Building initramfs" "blue"
   echo -e "\n"
   # Generate initramfs from the built modules
   dracut -c $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG initramfs.cpio.xz --kver $KVER --kmoddir "$MODULES_FOLDER/lib/modules/$KVER" --force
-  write_output "Building kernel with initramfs" "yellow"
+  write_output "Building kernel with initramfs" "blue"
   echo -e "\n"
   build_kernel 0
   echo -e "\n"
@@ -285,7 +285,7 @@ create_initramfs() {
 #Gets required input from user to run the kernel build.
 user_input() {
 
-  write_output "Would you like to make edits to the kernel config? (y/n): " "yellow"
+  write_output "Would you like to make edits to the kernel config? (y/n): " "blue"
   read -n 1 -r -s response
   echo $response
   echo -e "\n"
@@ -293,7 +293,7 @@ user_input() {
     edit_kernel_configs
   fi
 
-  write_output "Do you want to perform a clean build?\nThis will generate a new build from the ground up, \nrather than using the previous build. (y/n): " "yellow"
+  write_output "Do you want to perform a clean build?\nThis will generate a new build from the ground up, \nrather than using the previous build. (y/n): " "blue"
   read -n 1 -r -s response
   echo $response
   echo -e "\n"
@@ -321,7 +321,7 @@ install_headers
 create_initramfs
 
 # Copy kernel to root
-write_output "Copying kernel to root." "yellow"
+write_output "Copying kernel to root." "blue"
 echo -e "\n"
 cp $KERNEL_SOURCE_FOLDER/arch/x86/boot/bzImage $BUILD_ROOT_DIRECTORY/bzImage
 write_output "Build complete!" "green"

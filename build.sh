@@ -152,7 +152,7 @@ build_kernel() {
 #Installs kernel modules to $MODULES_FOLDER
 install_modules() {
   # Create empty headers folder
-  sudo rm -r $MODULES_FOLDER
+  sudo rm -rf $MODULES_FOLDER
   mkdir $MODULES_FOLDER
 
   make -j"$(nproc)" modules_install INSTALL_MOD_PATH=$MODULES_FOLDER INSTALL_MOD_STRIP=1
@@ -175,7 +175,7 @@ install_headers() {
   cd $KERNEL_SOURCE_FOLDER
 
   # Create empty headers folder
-  sudo rm -r $HEADERS_FOLDER
+  sudo rm -rf $HEADERS_FOLDER
   mkdir $HEADERS_FOLDER
 
   HDR_PATH=$HEADERS_FOLDER/linux-headers-$KVER

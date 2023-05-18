@@ -44,29 +44,13 @@ write_output() {
   esac
 }
 
-check_if_directory_exists() {
-  if [[ -d $1 ]]; then
-    return true
-  else
-    return false
-  fi
-}
-
-check_if_file_exists() {
-  if [[ -f $1 ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
 
 #Checks if source files already exist
 #If not then tries to download tarball with curl
 #if curl fails then tries with wget
 #if download is successful then extracts tarball
 get_kernel_source() {
-  check_if_directory_exists $KERNEL_SOURCE_FOLDER
-  if [[ $? -eq false ]]; then
+  if [[ ! -d $KERNEL_SOURCE_FOLDER ]]; then
     write_output "Downloading kernel source" "blue"
     echo -e "\n"
     if ! curl $KERNEL_SOURCE_URL -o $KERNEL_SOURCE_NAME.tar.xz; then
@@ -95,8 +79,7 @@ get_kernel_source() {
 #creates an empty .patches_applied file if patches have already been applied
 apply_kernel_patches() {
   cd $KERNEL_SOURCE_FOLDER
-  check_if_file_exists "$BUILD_ROOT_DIRECTORY/.patches_applied"
-  if [[ $? -eq 1 ]]; then
+  if [[ ! -f "$BUILD_ROOT_DIRECTORY/.patches_applied" ]]; then
     write_output "Applying kernel patches." "blue"
     echo
     echo -e "\e[33m"
@@ -121,8 +104,7 @@ apply_kernel_patches() {
 #Runs make olddefconfig to ensure no missing new options are left out of file
 #Creates empty initramfs file so kernel will build
 setup_kernel_config() {
-  check_if_file_exists ".config"
-  if [[ $? -eq 1 ]]; then
+  if [[ ! -f ".config" ]]; then
     write_output "No existing kernel config, creating config file" "yellow"
     echo
     cp $BUILD_ROOT_DIRECTORY/$KERNEL_CONFIG $KERNEL_SOURCE_FOLDER/.config
@@ -178,15 +160,10 @@ build_kernel() {
 
 #Installs kernel modules to $MODULES_FOLDER
 install_modules() {
-  check_if_directory_exists $MODULES_FOLDER
-  if [[ $? -eq false ]]; then
-    sudo rm -r $MODULES_FOLDER
-    mkdir $MODULES_FOLDER
+  # Create empty headers folder
+  sudo rm -r $MODULES_FOLDER
+  mkdir $MODULES_FOLDER
 
-  else
-    mkdir $MODULES_FOLDER
-
-  fi
   make -j"$(nproc)" modules_install INSTALL_MOD_PATH=$MODULES_FOLDER INSTALL_MOD_STRIP=1
 
   cd $MODULES_FOLDER/lib/modules
@@ -205,13 +182,10 @@ install_headers() {
   # Create an archive containing headers to build out of tree modules
   # Taken from the archlinux linux PKGBUILD
   cd $KERNEL_SOURCE_FOLDER
-  check_if_directory_exists $HEADERS_FOLDER
-  if [[ $? -eq true ]]; then
-    sudo rm -r $HEADERS_FOLDER
-    mkdir $HEADERS_FOLDER
-  else
-    mkdir $HEADERS_FOLDER
-  fi
+
+  # Create empty headers folder
+  sudo rm -r $HEADERS_FOLDER
+  mkdir $HEADERS_FOLDER
 
   HDR_PATH=$HEADERS_FOLDER/linux-headers-$KVER
 

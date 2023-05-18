@@ -44,7 +44,6 @@ write_output() {
   esac
 }
 
-
 #Checks if source files already exist
 #If not then tries to download tarball with curl
 #if curl fails then tries with wget
@@ -113,7 +112,9 @@ setup_kernel_config() {
     echo -e "\n"
   fi
 
-  make olddefconfig >/dev/null
+  write_output "Running make olddefconfig" "blue"
+  echo -e "\n"
+  make olddefconfig
   touch $KERNEL_SOURCE_FOLDER/$INITRAMFS_NAME
 }
 

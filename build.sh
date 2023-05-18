@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e # Exit on errors
+
 KERNEL_VERSION=6.3.3
 KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.3.3.tar.xz
 KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
@@ -11,6 +11,9 @@ HEADERS_FOLDER=$KERNEL_SOURCE_FOLDER/headers
 KERNEL_CONFIG=kernel.conf
 DRACUT_CONFIG=dracut.conf
 INITRAMFS_NAME=initramfs.cpio.xz
+
+# Exit on errors
+set -e
 
 #outputs given message and color choice
 #First parameter is message to output

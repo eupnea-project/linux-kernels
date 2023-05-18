@@ -12,6 +12,9 @@ KERNEL_CONFIG=kernel.conf
 DRACUT_CONFIG=dracut.conf
 INITRAMFS_NAME=initramfs.cpio.xz
 
+# Exit on errors
+set -e
+
 #outputs given message and color choice
 #First parameter is message to output
 #Second parameter is color choice

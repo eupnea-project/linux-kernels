@@ -64,6 +64,8 @@ check_if_file_exists() {
 get_kernel_source() {
   check_if_directory_exists $KERNEL_SOURCE_FOLDER
   if [[ $? -eq 1 ]]; then
+    write_output "Downloading kernel source" "blue"
+    echo -e "\n"
     if ! curl $KERNEL_SOURCE_URL -o $KERNEL_SOURCE_NAME.tar.xz; then
       write_output "Failed to download kernel using curl, trying wget" "yellow"
       echo -e "\n"

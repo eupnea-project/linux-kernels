@@ -276,6 +276,8 @@ create_initramfs() {
   echo -e "\n"
   # Generate initramfs from the built modules
   sudo dracut -c $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG initramfs.cpio.xz --kver $KVER --kmoddir "$MODULES_FOLDER/lib/modules/$KVER" --force
+  # copy initramfs to build root for the GitHub release
+  cp initramfs.cpio.xz $BUILD_ROOT_DIRECTORY/initramfs.cpio.xz
   write_output "Building kernel with initramfs" "blue"
   echo -e "\n"
   build_kernel 0

@@ -208,7 +208,7 @@ install_headers() {
   # Remove uneeded architectures
   for arch in "$HDR_PATH"/arch/*/; do
     [[ $arch = */x86/ ]] && continue
-    rm -r "$arch"
+    rm -rf "$arch"
   done
 
   # Remove broken symlinks
@@ -221,7 +221,7 @@ install_headers() {
   # strip "$HDR_PATH/vmlinux"
 
   # Remove duplicate folder
-  rm -r "$HDR_PATH"/hdr
+  rm -rf "$HDR_PATH"/hdr
 
   # Create an archive for the headers
   cd "$HDR_PATH"/..

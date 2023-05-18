@@ -46,9 +46,9 @@ write_output() {
 
 check_if_directory_exists() {
   if [[ -d $1 ]]; then
-    return 0
+    return true
   else
-    return 1
+    return false
   fi
 }
 
@@ -66,7 +66,7 @@ check_if_file_exists() {
 #if download is successful then extracts tarball
 get_kernel_source() {
   check_if_directory_exists $KERNEL_SOURCE_FOLDER
-  if [[ $? -eq 1 ]]; then
+  if [[ $? -eq false ]]; then
     write_output "Downloading kernel source" "blue"
     echo -e "\n"
     if ! curl $KERNEL_SOURCE_URL -o $KERNEL_SOURCE_NAME.tar.xz; then
@@ -179,7 +179,7 @@ build_kernel() {
 #Installs kernel modules to $MODULES_FOLDER
 install_modules() {
   check_if_directory_exists $MODULES_FOLDER
-  if [[ $? -eq 1 ]]; then
+  if [[ $? -eq false ]]; then
     sudo rm -r $MODULES_FOLDER
     mkdir $MODULES_FOLDER
 
@@ -206,7 +206,7 @@ install_headers() {
   # Taken from the archlinux linux PKGBUILD
   cd $KERNEL_SOURCE_FOLDER
   check_if_directory_exists $HEADERS_FOLDER
-  if [[ $? -eq 0 ]]; then
+  if [[ $? -eq true ]]; then
     sudo rm -r $HEADERS_FOLDER
     mkdir $HEADERS_FOLDER
   else

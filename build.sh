@@ -118,16 +118,6 @@ setup_kernel_config() {
   touch $KERNEL_SOURCE_FOLDER/$INITRAMFS_NAME
 }
 
-#verifies that terminal is interactive and not running in docker
-check_terminal_is_interactive() {
-
-  if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
 #Builds clean kernel if 1, builds from previous build if 0
 build_kernel() {
   cd $KERNEL_SOURCE_FOLDER
@@ -291,8 +281,8 @@ get_kernel_source
 apply_kernel_patches
 setup_kernel_config
 
-check_terminal_is_interactive
-if [[ $? -eq 0 ]]; then
+# Check if running in a terminal and not in a docker container
+if [[ -t 0 ]] && [[ ! -f /.dockerenv ]]; then
   user_input
 else
   build_kernel 0

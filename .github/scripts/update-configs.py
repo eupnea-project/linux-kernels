@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
     # append all overlays to combined.conf
     for file in os.listdir("kernel-conf-overlays"):
-        with open(f"kernel-conf-overlays/{file}", "r") as overlay:
-            if overlay != "README.md":
+        if file != "README.md":
+            with open(f"kernel-conf-overlays/{file}", "r") as overlay:
                 with open("temp_combined.conf", "a") as combined:
                     combined.write("\n" + overlay.read())
 

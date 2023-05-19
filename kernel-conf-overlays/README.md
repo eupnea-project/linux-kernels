@@ -22,7 +22,8 @@ Add apparmor and SELinux support to the kernel.
 
 ## storage
 
-Set storage drivers to be built into the kernel to prevent issues on wake from sleep (kernel cant find rootfs).
+Set storage drivers to be built into the kernel, as they are not in the initramfs.
+If this is not enabled, emmc storage will not be detected on boot -> kernel panic.
 
 ## strict-devmem
 
@@ -47,3 +48,11 @@ Enable Google SMI callbacks and enable access to the coreboot memory entries fro
 ## console-loglevel
 
 Set the default console loglevel to 7 and quiet to 4.
+
+## nvidia-disable
+
+Disable any nvidia related components in the kernel.
+
+## i2c
+
+Set i2c modules to be built into the kernel, as they are not in the initramfs.

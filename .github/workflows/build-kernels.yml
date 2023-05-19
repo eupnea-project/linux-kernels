@@ -34,12 +34,13 @@ jobs:
       - name: Uploading as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: kernel-stable
+          name: mainline-kernel
           retention-days: 1
           path: |
             bzImage
             modules.tar.xz
             headers.tar.xz
+            initramfs.cpio.xz
 
   create-release:
     runs-on: ubuntu-latest
@@ -81,6 +82,7 @@ jobs:
           body: |
             Triggered by ${{ github.sha }} at ${{ github.event.repository.updated_at }}
           files: |
-            /tmp/artifacts/kernel*/bzImage*
-            /tmp/artifacts/kernel*/modules*
-            /tmp/artifacts/kernel*/headers*
+            /tmp/artifacts/*-kernel/bzImage
+            /tmp/artifacts/*-kernel/modules.tar.xz
+            /tmp/artifacts/*-kernel/headers.tar.xz
+            /tmp/artifacts/*-kernel/initramfs.cpio.xz

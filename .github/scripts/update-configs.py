@@ -35,8 +35,9 @@ if __name__ == "__main__":
     # append all overlays to combined.conf
     for file in os.listdir("kernel-conf-overlays"):
         with open(f"kernel-conf-overlays/{file}", "r") as overlay:
-            with open("temp_combined.conf", "a") as combined:
-                combined.write("\n" + overlay.read())
+            if overlay != "README.md":
+                with open("temp_combined.conf", "a") as combined:
+                    combined.write("\n" + overlay.read())
 
     # Copy combined config into local stable repo
     bash("cp temp_combined.conf linux/.config")

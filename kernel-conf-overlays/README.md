@@ -20,10 +20,15 @@ parameters.
 
 Add apparmor and SELinux support to the kernel.
 
-## storage
+## emmc_nvme
 
 Set storage drivers to be built into the kernel, as they are not in the initramfs.
 If this is not enabled, emmc storage will not be detected on boot -> kernel panic.
+
+## usb-controllers
+
+Set usb controller modules to be built into the kernel, as they are not in the initramfs.
+If this is not enabled, USBs will not be detected on boot -> kernel panic.
 
 ## strict-devmem
 
@@ -52,6 +57,10 @@ Set the default console loglevel to 7 and quiet to 4.
 ## nvidia-disable
 
 Disable any nvidia related components in the kernel.
+
+## Disable HyperV
+
+Disable HyperV guest support in the kernel. This will prevent the kernel from being run in a HyperV vm.
 
 ## i2c
 

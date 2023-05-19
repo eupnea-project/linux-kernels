@@ -32,6 +32,18 @@ Disable strict devmem to allow MrChromebox's scripts to work under Eupnea kernel
 
 Set default zram compression mode to lzo-rle.
 
-## tpm modules
+## tpm
 
 TODO?
+
+## version-string
+
+Add the eupnea name to the kernel version string.
+
+## hostname
+
+Set the default hostname to "localhost".
+
+## cb-mem
+
+Enable Google SMI callbacks and enable access to the coreboot memory entries from sysfs.

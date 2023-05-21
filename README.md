@@ -8,10 +8,12 @@
 
 # Overlaid configs
 
-To allow continuously importing changes from the base-kernel
+To allow continuously importing changes from the upstream kernel
 config ([currently arch linux](https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/linux/trunk/config))
-all changes made by the Eupnea team are stored as individual overlay configs that are appended to the base config. After
-running `make olddefconfig` the base config is updated and the overlay configs are applied automatically. This is
-performed daily by a GitHub action and results in the combined-kernel.conf file.
+all changes made by the Eupnea team are stored as individual overlay configs that are appended to the base config.
+
+A daily workflow pulls the fresh upstream config into base-kernel.conf , appends the overlay configs (from
+kernel-conf-overlays) and runs `make olddefconfig` to automatically combine the configs (the appended config options are
+prioritized over the base config options) to create combined-kernel.conf which can then used to build the kernel.
 
 [Overlays-readme](kernel-conf-overlays/README.md)

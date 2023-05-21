@@ -264,7 +264,7 @@ user_input() {
   echo $response
   echo -e "\n"
   if [[ $response =~ ^[Yy]$ ]]; then
-    edit_kernel_configs
+    edit_kernel_config
   fi
 
   write_output "Do you want to perform a clean build?\nThis will generate a new build from the ground up, \nrather than using the previous build. (y/n): " "green"

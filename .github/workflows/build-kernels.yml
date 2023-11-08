@@ -52,11 +52,9 @@ jobs:
           fetch-depth: 1
 
       - name: Deleting old dev release
-        uses: dev-drprasad/delete-tag-and-release@v0.2.1
+        uses: cb80/delrel@latest
         with:
-          tag_name: dev-build 
-          github_token: ${{ secrets.GITHUB_TOKEN }} 
-          delete_release: true
+          tag: dev-build 
 
       - name: Generating release tag and setting prerelease + name
         id: tag

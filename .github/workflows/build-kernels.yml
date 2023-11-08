@@ -54,10 +54,9 @@ jobs:
       - name: Deleting old dev release
         uses: dev-drprasad/delete-tag-and-release@v0.2.1
         with:
+          tag_name: dev-build 
+          github_token: ${{ secrets.GITHUB_TOKEN }} 
           delete_release: true
-          tag_name: dev-build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generating release tag and setting prerelease + name
         id: tag

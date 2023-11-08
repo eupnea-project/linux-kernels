@@ -1,7 +1,7 @@
 #!/bin/bash
 
-KERNEL_VERSION=6.6
-KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.5.10.tar.xz
+KERNEL_VERSION=6.6.1
+KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.1.tar.xz
 KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
 BUILD_ROOT_DIRECTORY=$(pwd)
 KERNEL_SOURCE_FOLDER=$BUILD_ROOT_DIRECTORY/linux-$KERNEL_VERSION

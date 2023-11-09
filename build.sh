@@ -286,6 +286,7 @@ elif [[ $1 == "mainline" ]]; then
 else
   echo "Unknown kernel type"
   echo "Usage: build.sh [chromeos | mainline]"
+  exit 1
 fi
 
 # set global env vars

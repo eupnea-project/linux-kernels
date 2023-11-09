@@ -53,7 +53,7 @@ if __name__ == "__main__":
     bash("make olddefconfig")
 
     # Copy new config back to the eupnea repo
-    bash("cp ./.config ../combined-kernel.conf")
+    bash("cp ./.config ../kernel-configs/chromeos/combined-kernel.conf")
 
     # determine the kernel version
     kernel_version = bash("make kernelversion")

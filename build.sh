@@ -60,10 +60,21 @@ get_kernel_source() {
         exit 1
       fi
     fi
-    if ! tar -xf $KERNEL_SOURCE_FOLDER.tar.xz; then
-      write_output "Failed to extract kernel" "red"
-      echo
-      exit 1
+
+    # the chromeos kernel has no nested directory -> create it and extract into it
+    if [ $KERNEL_TYPE = "chromeos" ]; then
+      mkdir $KERNEL_SOURCE_FOLDER
+      if ! tar -xf $KERNEL_SOURCE_NAME.tar.gz -C $KERNEL_SOURCE_FOLDER; then
+        write_output "Failed to extract kernel" "red"
+        echo
+        exit 1
+      fi
+    else
+      if ! tar -xf $KERNEL_SOURCE_FOLDER.tar.xz; then
+        write_output "Failed to extract kernel" "red"
+        echo
+        exit 1
+      fi
     fi
 
   else

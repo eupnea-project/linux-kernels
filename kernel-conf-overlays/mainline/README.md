@@ -14,6 +14,7 @@ interferes with the onboard graphics in games causing extremely poor performance
 Set initramfs compression to xz. Reading more compressed files and decompressing from ram them is faster than reading
 uncompressed files, especially on slower storage.
 Set initramfs name to force the kernel to include it.
+
 ### iommu
 
 Set iommu to passthrough mode by default to remove the need for some AMD users to add `iommu=pt` to their kernel

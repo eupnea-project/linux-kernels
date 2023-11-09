@@ -12,7 +12,7 @@ def bash(command: str) -> str:
 
 if __name__ == "__main__":
     # pull fresh arch linux config to use as base.conf
-    urlretrieve(url="https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/linux/trunk/config",
+    urlretrieve(url="https://gitlab.archlinux.org/archlinux/packaging/packages/linux/-/raw/main/config",
                 filename="kernel-configs/chromeos/base-kernel.conf")
 
     # duplicate base.conf to temp_combined.conf

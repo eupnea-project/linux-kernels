@@ -1,14 +1,11 @@
 #!/bin/bash
 
-KERNEL_VERSION=6.6.1
-KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.1.tar.xz
-KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
+MAINLINE_KERNEL_VERSION=6.6.1
+MAINLINE_KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.1.tar.xz
+CHROMEOS_KERNEL_VERSION=5.10
+CHROMEOS_KERNEL_SOURCE_URL=https://chromium.googlesource.com/chromiumos/third_party/kernel.git/+archive/refs/heads/release-R120-15662.B-chromeos-5.10.tar.gz
+
 BUILD_ROOT_DIRECTORY=$(pwd)
-KERNEL_SOURCE_FOLDER=$BUILD_ROOT_DIRECTORY/linux-$KERNEL_VERSION
-KERNEL_PATCHES=$BUILD_ROOT_DIRECTORY/patches
-MODULES_FOLDER=$KERNEL_SOURCE_FOLDER/modules
-HEADERS_FOLDER=$KERNEL_SOURCE_FOLDER/headers
-KERNEL_CONFIG=combined-kernel.conf
 DRACUT_CONFIG=dracut.conf
 INITRAMFS_NAME=initramfs.cpio.xz
 
@@ -278,6 +275,26 @@ user_input() {
   fi
 
 }
+
+# determine whether to build a chromeos or mainline kernel
+if [[ $1 == "chromeos" ]]; then
+  KERNEL_VERSION=$CHROMEOS_KERNEL_VERSION
+  KERNEL_SOURCE_URL=$CHROMEOS_KERNEL_SOURCE_URL
+elif [[ $1 == "mainline" ]]; then
+  KERNEL_VERSION=$MAINLINE_KERNEL_VERSION
+  KERNEL_SOURCE_URL=$MAINLINE_KERNEL_SOURCE_URL
+else
+  echo "Unknown kernel type"
+  echo "Usage: build.sh [chromeos | mainline]"
+fi
+
+# set global env vars
+KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
+KERNEL_SOURCE_FOLDER=$BUILD_ROOT_DIRECTORY/linux-$KERNEL_VERSION
+MODULES_FOLDER=$KERNEL_SOURCE_FOLDER/modules
+HEADERS_FOLDER=$KERNEL_SOURCE_FOLDER/headers
+KERNEL_PATCHES=$BUILD_ROOT_DIRECTORY/patches/$1
+KERNEL_CONFIG=combined-$1-kernel.conf
 
 get_kernel_source
 apply_kernel_patches

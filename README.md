@@ -16,4 +16,5 @@ A daily workflow pulls the fresh upstream config into base-kernel.conf , appends
 kernel-conf-overlays) and runs `make olddefconfig` to automatically combine the configs (the appended config options are
 prioritized over the base config options) to create combined-kernel.conf which can then used to build the kernel.
 
-[Overlays-readme](kernel-conf-overlays/README.md)
+[Overlays-readme (mainline)](kernel-conf-overlays/mainline/README.md)
+[Overlays-readme (chromeos)](kernel-conf-overlays/chromeos/README.md)

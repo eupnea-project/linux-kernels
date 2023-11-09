@@ -279,10 +279,10 @@ user_input() {
 }
 
 # determine whether to build a chromeos or mainline kernel
-if [[ KERNEL_TYPE == "chromeos" ]]; then
+if [[ $KERNEL_TYPE == "chromeos" ]]; then
   KERNEL_VERSION=$CHROMEOS_KERNEL_VERSION
   KERNEL_SOURCE_URL=$CHROMEOS_KERNEL_SOURCE_URL
-elif [[ KERNEL_TYPE == "mainline" ]]; then
+elif [[ $KERNEL_TYPE == "mainline" ]]; then
   KERNEL_VERSION=$MAINLINE_KERNEL_VERSION
   KERNEL_SOURCE_URL=$MAINLINE_KERNEL_SOURCE_URL
 else

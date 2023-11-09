@@ -5,7 +5,9 @@ MAINLINE_KERNEL_SOURCE_URL=https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.
 CHROMEOS_KERNEL_VERSION=5.10.199
 CHROMEOS_KERNEL_SOURCE_URL=https://chromium.googlesource.com/chromiumos/third_party/kernel.git/+archive/refs/heads/release-R120-15662.B-chromeos-5.10.tar.gz
 
+KERNEL_TYPE=$1
 BUILD_ROOT_DIRECTORY=$(pwd)
+KERNEL_CONFIG=combined-kernel.conf
 DRACUT_CONFIG=dracut.conf
 INITRAMFS_NAME=initramfs.cpio.xz
 
@@ -103,7 +105,7 @@ setup_kernel_config() {
   if [[ ! -f ".config" ]]; then
     write_output "No existing kernel config, creating config file" "yellow"
     echo
-    cp $BUILD_ROOT_DIRECTORY/$KERNEL_CONFIG $KERNEL_SOURCE_FOLDER/.config
+    cp $BUILD_ROOT_DIRECTORY/kernel-configs/$KERNEL_TYPE/$KERNEL_CONFIG $KERNEL_SOURCE_FOLDER/.config
   else
     write_output "Kernel config already exists" "blue"
     echo -e "\n"
@@ -277,10 +279,10 @@ user_input() {
 }
 
 # determine whether to build a chromeos or mainline kernel
-if [[ $1 == "chromeos" ]]; then
+if [[ KERNEL_TYPE == "chromeos" ]]; then
   KERNEL_VERSION=$CHROMEOS_KERNEL_VERSION
   KERNEL_SOURCE_URL=$CHROMEOS_KERNEL_SOURCE_URL
-elif [[ $1 == "mainline" ]]; then
+elif [[ KERNEL_TYPE == "mainline" ]]; then
   KERNEL_VERSION=$MAINLINE_KERNEL_VERSION
   KERNEL_SOURCE_URL=$MAINLINE_KERNEL_SOURCE_URL
 else
@@ -294,8 +296,7 @@ KERNEL_SOURCE_NAME=linux-$KERNEL_VERSION
 KERNEL_SOURCE_FOLDER=$BUILD_ROOT_DIRECTORY/linux-$KERNEL_VERSION
 MODULES_FOLDER=$KERNEL_SOURCE_FOLDER/modules
 HEADERS_FOLDER=$KERNEL_SOURCE_FOLDER/headers
-KERNEL_PATCHES=$BUILD_ROOT_DIRECTORY/patches/$1
-KERNEL_CONFIG=$BUILD_ROOT_DIRECTORY/kernel-configs/$1/combined-kernel.conf
+KERNEL_PATCHES=$BUILD_ROOT_DIRECTORY/patches/KERNEL_TYPE
 
 get_kernel_source
 apply_kernel_patches

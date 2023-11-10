@@ -102,6 +102,16 @@ jobs:
         with:
           path: /tmp/artifacts/
 
+      - name: Renaming kernel artifacts
+        run: |
+          # prepend kernel type to dowmloaded artifacts
+          for file in /tmp/artifacts/chromeos-kernel/*; do
+            mv "$file" "chromeos-${file}"
+          done
+          for file in /tmp/artifacts/mainline-kernel/*; do
+            mv "$file" "mainline-${file}"
+          done
+
       - name: Publishing new release
         uses: softprops/action-gh-release@v1
         with:

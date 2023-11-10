@@ -104,12 +104,12 @@ jobs:
 
       - name: Renaming kernel artifacts
         run: |
-          # prepend kernel type to dowmloaded artifacts
+          # append kernel type to dowmloaded artifacts
           for file in /tmp/artifacts/chromeos-kernel/*; do
-            mv "$file" "chromeos-${file}"
+            mv "$file" "${file}-chromeos"
           done
           for file in /tmp/artifacts/mainline-kernel/*; do
-            mv "$file" "mainline-${file}"
+            mv "$file" "${file}-mainline"
           done
 
       - name: Publishing new release

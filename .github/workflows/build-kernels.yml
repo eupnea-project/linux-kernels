@@ -104,12 +104,19 @@ jobs:
 
       - name: Renaming kernel artifacts
         run: |
-          # append kernel type to dowmloaded artifacts
-          for file in /tmp/artifacts/chromeos-kernel/*; do
-            mv "$file" "${file}-chromeos"
+          # append kernel type to downloaded artifacts
+          cd "/tmp/artifacts/mainline-kernel"
+          for file in *; do
+            if [ -f "$file" ]; then
+              mv "$file" "mainline-$file"
+            fi
           done
-          for file in /tmp/artifacts/mainline-kernel/*; do
-            mv "$file" "${file}-mainline"
+          
+          cd "/tmp/artifacts/chromeos-kernel"
+          for file in *; do
+            if [ -f "$file" ]; then
+              mv "$file" "chromeos-$file"
+            fi
           done
 
       - name: Publishing new release
@@ -121,7 +128,7 @@ jobs:
           body: |
             Triggered by ${{ github.sha }} at ${{ github.event.repository.updated_at }}
           files: |
-            /tmp/artifacts/*-kernel/bzImage
-            /tmp/artifacts/*-kernel/modules.tar.xz
-            /tmp/artifacts/*-kernel/headers.tar.xz
-            /tmp/artifacts/*-kernel/initramfs.cpio.xz
+            /tmp/artifacts/*-kernel/*-bzImage
+            /tmp/artifacts/*-kernel/*-modules.tar.xz
+            /tmp/artifacts/*-kernel/*-headers.tar.xz
+            /tmp/artifacts/*-kernel/*-initramfs.cpio.xz

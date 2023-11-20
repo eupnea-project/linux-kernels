@@ -1,12 +1,11 @@
-# Eupnea-Mainline kernel
+# Linux kernels
 
-[Kernel docs page](https://eupnea-linux.github.io/docs/project/kernels#mainline-eupnea-kernel)
+### [Kernel docs page](https://eupnea-project.github.io/docs/project/kernels)
 
-# Building the Eupnea-Mainline kernel
+* [Building the Eupnea-Mainline kernel](https://eupnea-project.github.io/docs/compile/kernel#building-the-eupnea-mainline-kernel)
+* [Building the Eupnea-ChromeOS kernel](https://eupnea-project.github.io/docs/compile/kernel#building-the-eupnea-chromeos-kernel)
 
-[Build instructions](https://eupnea-linux.github.io/docs/compile/kernel#building-the-eupnea-mainline-kernel)
-
-# Overlaid configs
+## Overlaid configs
 
 To allow continuously importing changes from the upstream kernel
 config ([currently arch linux](https://raw.githubusercontent.com/archlinux/svntogit-packages/packages/linux/trunk/config))
@@ -16,5 +15,5 @@ A daily workflow pulls the fresh upstream config into base-kernel.conf , appends
 kernel-conf-overlays) and runs `make olddefconfig` to automatically combine the configs (the appended config options are
 prioritized over the base config options) to create combined-kernel.conf which can then used to build the kernel.
 
-[Overlays-readme (mainline)](kernel-conf-overlays/mainline/README.md)
-[Overlays-readme (chromeos)](kernel-conf-overlays/chromeos/README.md)
+* [Overlays-readme (mainline)](kernel-conf-overlays/mainline/README.md)  
+* [Overlays-readme (chromeos)](kernel-conf-overlays/chromeos/README.md)  

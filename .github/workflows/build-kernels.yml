@@ -73,10 +73,42 @@ jobs:
             modules.tar.xz
             headers.tar.xz
             initramfs.cpio.xz
+  
+  build-kernel-noinitramfs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Maximizing build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 5120
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+
+      - name: Checking out repository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Installing dependencies
+        run: sudo apt update && sudo apt install -y git build-essential ncurses-dev xz-utils libssl-dev bc flex libelf-dev bison binutils dracut
+
+      - name: Building Kernel
+        run: bash build.sh noinitramfs
+
+      - name: Uploading as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: noinitramfs-kernel
+          retention-days: 1
+          path: |
+            bzImage
+            modules.tar.xz
+            headers.tar.xz
+            initramfs.cpio.xz
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [ build-kernel-mainline, build-kernel-chromeos ]
+    needs: [ build-kernel-mainline, build-kernel-chromeos, build-kernel-noinitramfs ]
     steps:
       - name: Checking out repository code
         uses: actions/checkout@v3
@@ -116,6 +148,13 @@ jobs:
           for file in *; do
             if [ -f "$file" ]; then
               mv "$file" "chromeos-$file"
+            fi
+          done
+
+          cd "/tmp/artifacts/noinitramfs-kernel"
+          for file in *; do
+            if [ -f "$file" ]; then
+              mv "$file" "noinitramfs-$file"
             fi
           done
 

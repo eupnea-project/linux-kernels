@@ -8,7 +8,8 @@ CHROMEOS_KERNEL_SOURCE_URL=https://chromium.googlesource.com/chromiumos/third_pa
 KERNEL_TYPE=$1
 BUILD_ROOT_DIRECTORY=$(pwd)
 KERNEL_CONFIG=combined-kernel.conf
-DRACUT_CONFIG=dracut.conf
+DRACUT_CONFIG_DIR=dracut_conf_file
+DRACUT_CONFIG_D=dracut.conf.d
 INITRAMFS_NAME=initramfs.cpio.xz
 
 # Exit on errors
@@ -256,8 +257,8 @@ create_initramfs() {
   echo -e "\n"
   # Generate initramfs from the built modules
   # when --confdir is not set dracut will use the systems config -> create empty folder to prevent dracut from using the systems config
-  mkdir -p $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG.d
-  dracut -c $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG --confdir $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG.d initramfs.cpio.xz --kver $KVER --kmoddir "$MODULES_FOLDER/lib/modules/$KVER" --force
+  mkdir -p $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG_D
+  dracut -c $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG_DIR/$DRACUT_CONFIG_FILE --confdir $BUILD_ROOT_DIRECTORY/$DRACUT_CONFIG_D initramfs.cpio.xz --kver $KVER --kmoddir "$MODULES_FOLDER/lib/modules/$KVER" --force
   # copy initramfs to build root for the GitHub release
   cp initramfs.cpio.xz $BUILD_ROOT_DIRECTORY/initramfs.cpio.xz
   write_output "Building kernel with initramfs" "blue"
@@ -293,12 +294,18 @@ user_input() {
 if [[ $KERNEL_TYPE == "chromeos" ]]; then
   KERNEL_VERSION=$CHROMEOS_KERNEL_VERSION
   KERNEL_SOURCE_URL=$CHROMEOS_KERNEL_SOURCE_URL
+  DRACUT_CONFIG_FILE=dracut.conf
 elif [[ $KERNEL_TYPE == "mainline" ]]; then
   KERNEL_VERSION=$MAINLINE_KERNEL_VERSION
   KERNEL_SOURCE_URL=$MAINLINE_KERNEL_SOURCE_URL
+  DRACUT_CONFIG_FILE=dracut.conf
+elif [[ $KERNEL_TYPE == "noinitramfs" ]]; then
+  KERNEL_VERSION=$MAINLINE_KERNEL_VERSION
+  KERNEL_SOURCE_URL=$MAINLINE_KERNEL_SOURCE_URL
+  DRACUT_CONFIG_FILE=dracut_sda.conf
 else
   echo "Unknown kernel type"
-  echo "Usage: build.sh [chromeos | mainline]"
+  echo "Usage: build.sh [chromeos | mainline | noinitramfs]"
   exit 1
 fi
 

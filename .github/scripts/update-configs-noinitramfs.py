@@ -19,9 +19,11 @@ if __name__ == "__main__":
     # Get the latest stable version
     latest_version = "v" + data["latest_stable"]["version"]
     latest_source = data["releases"][1]["source"]
+    
+    # Don't clone the repo since it is already existing
     # Git clone the latest stable version
-    bash(f"git clone --depth=1 --branch={latest_version} https://git.kernel.org/pub/scm/linux/kernel/git/stable"
-         f"/linux.git")
+    #bash(f"git clone --depth=1 --branch={latest_version} https://git.kernel.org/pub/scm/linux/kernel/git/stable"
+    #     f"/linux.git")
 
     # pull fresh arch linux config to use as base.conf
     urlretrieve(url="https://gitlab.archlinux.org/archlinux/packaging/packages/linux/-/raw/main/config",

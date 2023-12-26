@@ -17,6 +17,9 @@ jobs:
       - name: Updating chromeos config
         run: sudo python3 .github/scripts/update-configs-mainline.py
 
+      - name: Updating noinitramfs config
+        run: sudo python3 .github/scripts/update-configs-noinitramfs.py
+
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           # Disable setting repo owner as commit author

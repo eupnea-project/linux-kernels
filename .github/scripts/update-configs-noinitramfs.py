@@ -12,19 +12,6 @@ def bash(command: str) -> str:
 
 
 if __name__ == "__main__":
-    # Read json from kernel.org
-    with urlopen("https://www.kernel.org/releases.json") as response:
-        data = json.loads(response.read())
-
-    # Get the latest stable version
-    latest_version = "v" + data["latest_stable"]["version"]
-    latest_source = data["releases"][1]["source"]
-    
-    # Don't clone the repo since it is already existing
-    # Git clone the latest stable version
-    #bash(f"git clone --depth=1 --branch={latest_version} https://git.kernel.org/pub/scm/linux/kernel/git/stable"
-    #     f"/linux.git")
-
     # pull fresh arch linux config to use as base.conf
     urlretrieve(url="https://gitlab.archlinux.org/archlinux/packaging/packages/linux/-/raw/main/config",
                 filename="kernel-configs/noinitramfs/base-kernel.conf")
@@ -49,11 +36,3 @@ if __name__ == "__main__":
 
     # Copy updated combined config back to repo
     bash("cp linux/.config ./kernel-configs/noinitramfs/combined-kernel.conf")
-
-    # Update bash script
-    with open("build.sh", "r") as file:
-        build_script = file.readlines()
-    build_script[2] = f"MAINLINE_KERNEL_VERSION={latest_version[1:]}\n"
-    build_script[3] = f"MAINLINE_KERNEL_SOURCE_URL={latest_source[0:]}\n"
-    with open("build.sh", "w") as file:
-        file.writelines(build_script)

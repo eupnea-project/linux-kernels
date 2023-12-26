@@ -5,3 +5,5 @@
 /headers*
 /initramfs*
 /modules*
+!/.github/*
+!/.gitignore
